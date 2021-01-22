@@ -1,0 +1,6 @@
+# Decentralized Voting Platform
+
+
+
+
+# Contributors
