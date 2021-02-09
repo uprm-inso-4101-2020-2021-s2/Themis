@@ -13,3 +13,13 @@ const (
 	// QuerierRoute to be used for querier msgs
 	QuerierRoute = ModuleName
 )
+
+const (
+	GroupPrefix      = "group-value-"
+	GroupCountPrefix = "group-count-"
+)
+
+const (
+	VoucherPrefix      = "voucher-value-"
+	VoucherCountPrefix = "voucher-count-"
+)
