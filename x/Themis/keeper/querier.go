@@ -20,7 +20,7 @@ func NewQuerier(k Keeper) sdk.Querier {
 		case types.QueryGetVoucher:
 			return getVoucher(ctx, path[1:], k)
 		case types.QueryListUserVoucher:
-			return listUserVouchers(ctx, k, path[0], path[1])
+			return listUserVouchers(ctx, path[1:], k)
 		case types.QueryListGroup:
 			return listGroup(ctx, k)
 		case types.QueryGetGroup:

@@ -57,11 +57,13 @@ func GetCmdListUserVouchers(queryRoute string, cdc *codec.Codec) *cobra.Command 
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			key := args[0]
+			group := args[0]
+			user := args[1]
 
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryGetVoucher, key), nil)
+			// TODO: cleaner way to make a query instead of single variable methods
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryListUserVoucher, user+"-"+group), nil)
 			if err != nil {
-				fmt.Printf("could not resolve voucher %s \n%s\n", key, err.Error())
+				fmt.Printf("could not resolve voucher with group id %s and user %s \n%s\n", group, user, err.Error())
 
 				return nil
 			}

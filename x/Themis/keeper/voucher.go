@@ -45,14 +45,14 @@ func (k Keeper) CreateVoucher(ctx sdk.Context, msg types.MsgCreateVoucher) {
 	var voucher = types.Voucher{
 		Creator: msg.Creator,
 		Owner:   msg.Owner,
-		ID:      strconv.FormatInt(count, 10),
+		ID:      msg.Owner.String() + "-" + string(msg.Group) + "-" + strconv.FormatInt(count, 10),
 		Group:   msg.Group,
 		Used:    0,
 	}
 	//
 
 	store := ctx.KVStore(k.storeKey)
-	key := []byte(types.VoucherPrefix + msg.Group + "-" + string(msg.Owner) + "-" + voucher.ID)
+	key := []byte(types.VoucherPrefix + string(voucher.ID))
 	value := k.cdc.MustMarshalBinaryLengthPrefixed(voucher)
 	store.Set(key, value)
 
@@ -104,10 +104,12 @@ func listVoucher(ctx sdk.Context, k Keeper) ([]byte, error) {
 	return res, nil
 }
 
-func listUserVouchers(ctx sdk.Context, k Keeper, group string, wallet string) ([]byte, error) {
+// Queries all vouchers associated with that user and group
+func listUserVouchers(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+	userGroup := path[0]
 	var voucherList []types.Voucher
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, []byte(types.VoucherPrefix+group+"-"+wallet+"-"))
+	iterator := sdk.KVStorePrefixIterator(store, []byte(types.VoucherPrefix+userGroup))
 	for ; iterator.Valid(); iterator.Next() {
 		var voucher types.Voucher
 		k.cdc.MustUnmarshalBinaryLengthPrefixed(store.Get(iterator.Key()), &voucher)
