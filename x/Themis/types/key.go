@@ -20,6 +20,7 @@ const (
 )
 
 const (
-	VoucherPrefix      = "voucher-value-"
-	VoucherCountPrefix = "voucher-count-"
+	AccountPrefix      = "account-value-"
+	AccountPtrPrefix   = "account-prt-value"
+	AccountCountPrefix = "account-account-count-"
 )

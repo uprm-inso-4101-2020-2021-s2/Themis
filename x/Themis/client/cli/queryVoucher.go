@@ -9,66 +9,89 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
-func GetCmdListVoucher(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdListAccount(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list-voucher",
-		Short: "list all voucher",
+		Use:   "list-account",
+		Short: "list all accounts",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/"+types.QueryListVoucher, queryRoute), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/"+types.QueryListAccount, queryRoute), nil)
 			if err != nil {
-				fmt.Printf("could not list Voucher\n%s\n", err.Error())
+				fmt.Printf("could not list Account\n%s\n", err.Error())
 				return nil
 			}
-			var out []types.Voucher
+			var out []types.Account
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},
 	}
 }
 
-func GetCmdGetVoucher(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdGetAccount(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get-voucher [key]",
-		Short: "Query a voucher by key",
+		Use:   "get-account [key]",
+		Short: "Query an account by key",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			key := args[0]
 
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryGetVoucher, key), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryGetAccount, key), nil)
 			if err != nil {
-				fmt.Printf("could not resolve voucher %s \n%s\n", key, err.Error())
+				fmt.Printf("could not resolve Account %s \n%s\n", key, err.Error())
 
 				return nil
 			}
 
-			var out types.Voucher
+			var out types.Account
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},
 	}
 }
 
-func GetCmdListUserVouchers(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdListUserAccounts(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list-user-voucher [group] [user]",
-		Short: "List all vouchers associated to user",
-		Args:  cobra.ExactArgs(2),
+		Use:   "list-user-accounts [user]",
+		Short: "List all accounts associated to user",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			group := args[0]
-			user := args[1]
+			user := args[0]
 
 			// TODO: cleaner way to make a query instead of single variable methods
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryListUserVoucher, user+"-"+group), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryListUserAccount, user), nil)
 			if err != nil {
-				fmt.Printf("could not resolve voucher with group id %s and user %s \n%s\n", group, user, err.Error())
+				fmt.Printf("could not resolve Account user %s \n%s\n", user, err.Error())
 
 				return nil
 			}
 
-			var out types.Voucher
+			var out []types.Account
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+func GetCmdListGroupAccounts(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list-group-accounts [group]",
+		Short: "List all accounts associated to group",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			group := args[0]
+
+			// TODO: cleaner way to make a query instead of single variable methods
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryListGroupAccount, group), nil)
+			if err != nil {
+				fmt.Printf("could not resolve Account with group id %s \n%s\n", group, err.Error())
+
+				return nil
+			}
+
+			var out []types.Account
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},

@@ -15,12 +15,14 @@ func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
 		// this line is used by starport scaffolding # 2
-		case types.QueryListVoucher:
-			return listVoucher(ctx, k)
-		case types.QueryGetVoucher:
-			return getVoucher(ctx, path[1:], k)
-		case types.QueryListUserVoucher:
-			return listUserVouchers(ctx, path[1:], k)
+		case types.QueryListAccount:
+			return listAccount(ctx, k)
+		case types.QueryGetAccount:
+			return getAccount(ctx, path[1:], k)
+		case types.QueryListUserAccount:
+			return listUserAccounts(ctx, path[1:], k)
+		case types.QueryListGroupAccount:
+			return listGroupAccounts(ctx, path[1:], k)
 		case types.QueryListGroup:
 			return listGroup(ctx, k)
 		case types.QueryGetGroup:

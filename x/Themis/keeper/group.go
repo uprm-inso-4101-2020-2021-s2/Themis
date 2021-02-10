@@ -47,7 +47,7 @@ func (k Keeper) CreateGroup(ctx sdk.Context, msg types.MsgCreateGroup) {
 		Creator:  msg.Creator,
 		ID:       strconv.FormatInt(count, 10),
 		Name:     msg.Name,
-		Vouchers: 0,
+		Accounts: 0,
 	}
 
 	store := ctx.KVStore(k.storeKey)
@@ -152,6 +152,6 @@ func (k Keeper) SetGroupName(ctx sdk.Context, key string, name string) {
 // Adds  one voucher
 func (k Keeper) AddGroupVoucher(ctx sdk.Context, key string) {
 	group, _ := k.GetGroup(ctx, key)
-	group.Vouchers += 1
+	group.Accounts += 1
 	k.SetGroup(ctx, group)
 }

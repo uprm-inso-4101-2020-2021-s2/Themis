@@ -5,45 +5,50 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &MsgCreateVoucher{}
+var _ sdk.Msg = &MsgAccountAddVotes{}
 
-type MsgCreateVoucher struct {
+type MsgAccountAddVotes struct {
 	Creator sdk.AccAddress `json:"creator" yaml:"creator"`
 	Group   string         `json:"group" yaml:"group"`
 	Owner   sdk.AccAddress `json:"owner" yaml:"owner"`
+	Amount  int            `json:"amount" yaml:"amount"`
 }
 
-func NewMsgCreateVoucher(creator sdk.AccAddress, owner sdk.AccAddress, group string) MsgCreateVoucher {
-	return MsgCreateVoucher{
+func NewMsgAccountAddVotes(creator sdk.AccAddress, owner sdk.AccAddress, group string, votes int) MsgAccountAddVotes {
+	return MsgAccountAddVotes{
 		Creator: creator,
 		Group:   group,
 		Owner:   owner,
+		Amount:  votes,
 	}
 }
 
-func (msg MsgCreateVoucher) Route() string {
+func (msg MsgAccountAddVotes) Route() string {
 	return RouterKey
 }
 
-func (msg MsgCreateVoucher) Type() string {
-	return "CreateVoucher"
+func (msg MsgAccountAddVotes) Type() string {
+	return "AddVotes"
 }
 
-func (msg MsgCreateVoucher) GetSigners() []sdk.AccAddress {
+func (msg MsgAccountAddVotes) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(msg.Creator)}
 }
 
-func (msg MsgCreateVoucher) GetSignBytes() []byte {
+func (msg MsgAccountAddVotes) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg MsgCreateVoucher) ValidateBasic() error {
+func (msg MsgAccountAddVotes) ValidateBasic() error {
 	if msg.Creator.Empty() || msg.Owner.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "creator can't be empty")
 	}
 	if msg.Group == "" {
 		return sdkerrors.Wrap(ErrInvalidGroup, "Group can't be empty")
+	}
+	if msg.Amount < 0 {
+		return sdkerrors.Wrap(ErrVoteNumberInvalid, "Vote amount can't be invalid")
 	}
 	return nil
 }

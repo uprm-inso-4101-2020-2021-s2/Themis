@@ -9,9 +9,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func listVoucherHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+func listAccountHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/list-voucher", storeName), nil)
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/list-account", storeName), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
@@ -20,12 +20,40 @@ func listVoucherHandler(cliCtx context.CLIContext, storeName string) http.Handle
 	}
 }
 
-func getVoucherHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+func listUserAccountsHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		user := vars["user"]
+
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/list-user-account/%s", storeName, user), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+func listGroupAccountsHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		group := vars["group"]
+
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/list-group-account/%s", storeName, group), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+func getAccountHandler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		key := vars["key"]
 
-		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/get-voucher/%s", storeName, key), nil)
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/get-account/%s", storeName, key), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return

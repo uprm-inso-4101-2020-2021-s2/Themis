@@ -19,9 +19,10 @@ type createVoucherRequest struct {
 	Creator string       `json:"creator"`
 	Group   string       `json:"group"`
 	Owner   string       `json:"owner"`
+	Amount  int          `json:"amount" yaml:"amount"`
 }
 
-func createVoucherHandler(cliCtx context.CLIContext) http.HandlerFunc {
+func createAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req createVoucherRequest
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
@@ -40,11 +41,13 @@ func createVoucherHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		parsedGroup := req.Group
+		parsedAmount := req.Amount
 
-		msg := types.NewMsgCreateVoucher(
+		msg := types.NewMsgAccountAddVotes(
 			creator,
 			owner,
 			parsedGroup,
+			parsedAmount,
 		)
 
 		err = msg.ValidateBasic()

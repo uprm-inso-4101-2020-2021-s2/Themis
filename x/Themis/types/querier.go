@@ -3,6 +3,7 @@ package types
 const QueryListGroup = "list-group"
 const QueryGetGroup = "get-group"
 
-const QueryListVoucher = "list-voucher"
-const QueryGetVoucher = "get-voucher"
-const QueryListUserVoucher = "list-user-voucher"
+const QueryListAccount = "list-account"
+const QueryGetAccount = "get-account"
+const QueryListUserAccount = "list-user-account"
+const QueryListGroupAccount = "list-group-account"

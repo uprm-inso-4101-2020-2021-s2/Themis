@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"strconv"
 
 	"github.com/spf13/cobra"
 
@@ -18,19 +19,20 @@ func _GetAddress(addr string) sdk.AccAddress {
 	return ret
 }
 
-func GetCmdCreateVoucher(cdc *codec.Codec) *cobra.Command {
+func GetCmdAddVote(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "create-voucher [group] [receiver]",
-		Short: "Creates a new voucher",
-		Args:  cobra.ExactArgs(2),
+		Use:   "give-vote [group] [receiver] [vote amount]",
+		Short: "Adds vote to account, if not created then create one",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsGroup := string(args[0])
 			argsOwner := string(args[1])
+			argsVotes, _ := strconv.Atoi(string(args[2]))
 
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			msg := types.NewMsgCreateVoucher(cliCtx.GetFromAddress(), _GetAddress(argsOwner), string(argsGroup))
+			msg := types.NewMsgAccountAddVotes(cliCtx.GetFromAddress(), _GetAddress(argsOwner), string(argsGroup), argsVotes)
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err

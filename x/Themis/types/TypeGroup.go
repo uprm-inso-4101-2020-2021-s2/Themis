@@ -8,5 +8,5 @@ type Group struct {
 	Creator  sdk.AccAddress `json:"creator" yaml:"creator"`
 	ID       string         `json:"id" yaml:"id"`
 	Name     string         `json:"name" yaml:"name"`
-	Vouchers int            `json:"vouchers" yaml:"vouchers"`
+	Accounts int            `json:"account" yaml:"accounts"`
 }
