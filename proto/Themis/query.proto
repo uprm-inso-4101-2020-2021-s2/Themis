@@ -1,0 +1,15 @@
+syntax = "proto3";
+package uprminso410120202021s2.Themis.Themis;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+}
+
+// this line is used by starport scaffolding # 3

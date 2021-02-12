@@ -1,0 +1,12 @@
+syntax = "proto3";
+package uprminso410120202021s2.Themis.Themis;
+
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types";
+
+// GenesisState defines the capability module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+}
+
