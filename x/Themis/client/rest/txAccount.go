@@ -14,7 +14,7 @@ import (
 // Used to not have an error if strconv is unused
 var _ = strconv.Itoa(42)
 
-type createVoucherRequest struct {
+type createAccountRequest struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string       `json:"creator"`
 	Group   string       `json:"group"`
@@ -24,7 +24,7 @@ type createVoucherRequest struct {
 
 func createAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req createVoucherRequest
+		var req createAccountRequest
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return

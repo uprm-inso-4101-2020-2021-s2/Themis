@@ -9,6 +9,9 @@ import (
 )
 
 func handleMsgSetGroupName(ctx sdk.Context, k keeper.Keeper, msg types.MsgSetGroupName) (*sdk.Result, error) {
+	if k.GroupExists(ctx, msg.ID) { //Checks if group exists
+		return nil, sdkerrors.Wrap(types.ErrInvalidGroup, "Invalid group ID")
+	}
 	if !msg.Creator.Equals(k.GetGroupOwner(ctx, msg.ID)) { // Checks if the the msg sender is the same as the current owner
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error
 	}

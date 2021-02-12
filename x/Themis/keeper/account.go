@@ -194,7 +194,3 @@ func (k Keeper) AddToAccount(ctx sdk.Context, user string, group string, votes i
 	account.Amount += votes
 	k.SetAccount(ctx, account)
 }
-
-func buildKey(user string, group string) string {
-	return user + "-" + group
-}

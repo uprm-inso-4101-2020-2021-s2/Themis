@@ -24,3 +24,8 @@ const (
 	AccountPtrPrefix   = "account-prt-value"
 	AccountCountPrefix = "account-account-count-"
 )
+
+const (
+	PollPrefix      = "poll-value-"
+	PollCountPrefix = "poll-count-"
+)

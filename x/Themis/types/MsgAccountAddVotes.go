@@ -28,7 +28,7 @@ func (msg MsgAccountAddVotes) Route() string {
 }
 
 func (msg MsgAccountAddVotes) Type() string {
-	return "AddVotes"
+	return "AccountAddVotes"
 }
 
 func (msg MsgAccountAddVotes) GetSigners() []sdk.AccAddress {

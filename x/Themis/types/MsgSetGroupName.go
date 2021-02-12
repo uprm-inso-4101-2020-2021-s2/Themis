@@ -26,7 +26,7 @@ func (msg MsgSetGroupName) Route() string {
 }
 
 func (msg MsgSetGroupName) Type() string {
-	return "SetGroup"
+	return "SetGroupName"
 }
 
 func (msg MsgSetGroupName) GetSigners() []sdk.AccAddress {

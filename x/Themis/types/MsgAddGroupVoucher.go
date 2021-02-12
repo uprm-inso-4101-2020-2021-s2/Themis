@@ -24,7 +24,7 @@ func (msg MsgAddGroupVoucher) Route() string {
 }
 
 func (msg MsgAddGroupVoucher) Type() string {
-	return "SetGroup"
+	return "AddGroupVouchers"
 }
 
 func (msg MsgAddGroupVoucher) GetSigners() []sdk.AccAddress {

@@ -53,3 +53,46 @@ func createGroupHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		utils.WriteGenerateStdTxResponse(w, cliCtx, baseReq, []sdk.Msg{msg})
 	}
 }
+
+type setGroupNameRequest struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	ID      string       `json:"id" yaml:"id"`
+	Creator string       `json:"creator" yaml:"creator"`
+	Name    string       `json:"name" yaml:"name"`
+}
+
+func setGroupNameHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req setGroupNameRequest
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		parsedName := req.Name
+		parsedID := req.ID
+
+		msg := types.NewMsgSetGroupName(
+			creator,
+			parsedID,
+			parsedName,
+		)
+
+		err = msg.ValidateBasic()
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		utils.WriteGenerateStdTxResponse(w, cliCtx, baseReq, []sdk.Msg{msg})
+	}
+}

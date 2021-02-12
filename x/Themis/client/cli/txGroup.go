@@ -2,8 +2,6 @@ package cli
 
 import (
 	"bufio"
-	"strconv"
-
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -13,11 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
-
-func Str2Float64(s string) float64 {
-	ret, _ := strconv.ParseFloat(s, 64)
-	return ret
-}
 
 func GetCmdCreateGroup(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{

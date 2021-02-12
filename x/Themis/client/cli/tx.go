@@ -23,6 +23,9 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 
 	ThemisTxCmd.AddCommand(flags.PostCommands(
 		// this line is used by starport scaffolding # 1
+		GetCmdCreatePoll(cdc),
+		GetCmdExtendPollDeadlinePoll(cdc),
+		GetCmdSetPollDesc(cdc),
 		GetCmdAddVote(cdc),
 		GetCmdCreateGroup(cdc),
 		GetCmdSetGroupName(cdc),
