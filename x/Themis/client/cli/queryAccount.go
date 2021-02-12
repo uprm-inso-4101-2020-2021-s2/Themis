@@ -59,7 +59,6 @@ func GetCmdListUserAccounts(queryRoute string, cdc *codec.Codec) *cobra.Command 
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			user := args[0]
 
-			// TODO: cleaner way to make a query instead of single variable methods
 			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryListUserAccount, user), nil)
 			if err != nil {
 				fmt.Printf("could not resolve Account user %s \n%s\n", user, err.Error())
@@ -83,7 +82,6 @@ func GetCmdListGroupAccounts(queryRoute string, cdc *codec.Codec) *cobra.Command
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			group := args[0]
 
-			// TODO: cleaner way to make a query instead of single variable methods
 			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryListGroupAccount, group), nil)
 			if err != nil {
 				fmt.Printf("could not resolve Account with group id %s \n%s\n", group, err.Error())

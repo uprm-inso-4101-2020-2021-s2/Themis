@@ -12,7 +12,6 @@ func handleMsgAccountAddVotes(ctx sdk.Context, k keeper.Keeper, msg types.MsgAcc
 	if !msg.Creator.Equals(k.GetGroupOwner(ctx, msg.Group)) { // Checks if the the msg sender is the same as the current owner
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error
 	}
-
 	if k.UserGroupAccountExists(ctx, msg.Owner.String(), string(msg.Group)) {
 		k.AddToAccount(ctx, msg.Owner.String(), string(msg.Group), msg.Amount)
 	} else {
