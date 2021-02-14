@@ -41,24 +41,24 @@ The fastest way to get into interacting with the chain is by using its included 
 
 To get a list of available commands:
 ```bash
-Themiscli tx Themis -h
+Themisd tx Themis -h
 ```
 
 You can also get the help page for the bellow examples like so:
 ```bash
-Themiscli tx Themis [command] -h
+Themisd tx Themis [command] -h
 ```
 
 Create a new group named ExampleGroup under our wallet cosmos01:
 ```bash
 # [group name]
-Themiscli tx Themis create-group ExampleGroup --from cosmo01
+Themisd tx Themis create-group ExampleGroup --from cosmo01
 ```
 
 Change ExampleGroup's name to GroupExample assuming the group's ID is 1234:
 ```bash
 # [group ID] [new group name]
-Themiscli tx Themis set-group-name 1234 GroupExample --from cosmos01
+Themisd tx Themis set-group-name 1234 GroupExample --from cosmos01
 ```
 
 Now you're going to want to make a poll so that voting can take place. Let's say you want to ask what type of cookie is
@@ -68,19 +68,19 @@ be voted on and finally a deadline, which would be Dec 27 2021 at 3pm.
 To create a new poll:
 ```bash
 # [group ID] [title] [description] [deadline] [options..]
-Themiscli tx Themis create-poll 1234 TopCookies "Which of these cookies do you think is the best?" 1640617200 "Chocolate Chip" "Macadamia Nut" "Plain Dough" --from cosmos01
+Themisd tx Themis create-poll 1234 TopCookies "Which of these cookies do you think is the best?" 1640617200 "Chocolate Chip" "Macadamia Nut" "Plain Dough" --from cosmos01
 ```
 
 To change that poll's description, assuming the poll's ID is 1234-0 :
 ```bash
 # [poll ID] [new description]
-Themiscli tx Themis set-poll-desc 1234-0 "Pick your favorite cookie!" --from cosmos01
+Themisd tx Themis set-poll-description 1234-0 "Pick your favorite cookie!" --from cosmos01
 ```
 
 To extend the deadline to 2022:
 ```bash
 # [poll ID] [new deadline]
-Themiscli tx Themis extend-poll-deadline 1234-0 1672153200 --from cosmos01
+Themisd tx Themis extend-poll-deadline 1234-0 1672153200 --from cosmos01
 ```
 
 So far you have a group, and a poll made but no accounts, how will your friends vote on your poll? First you need to
@@ -88,7 +88,7 @@ deposit vote vouchers on your friend's wallet. Let's deposit 3 vouchers, don't w
 exist already. Let's assume your friend's wallet is cosmos02:
 ```bash
 # [group] [receiver] [vote amount]
-Themiscli tx Themis give-vote 1234 cosmos02 3 --from cosmos01
+Themisd tx Themis set-account-vouchers 1234 cosmos02 3 --from cosmos01
 ```
 
 VOTING NOT YET DONE
@@ -97,37 +97,37 @@ VOTING NOT YET DONE
 
 To get a list of available commands:
 ```bash
-Themiscli query Themis -h
+Themisd query Themis -h
 ```
 
 You can also get the help page for the bellow examples like so:
 ```bash
-Themiscli query Themis [query] -h
+Themisd query Themis [query] -h
 ```
 
 You can get a list of all polls, accounts and groups:
 ```bash
-Themiscli query Themis list-group
-Themiscli query Themis list-poll
-Themiscli query Themis list-account
+Themisd query Themis list-group
+Themisd query Themis list-poll
+Themisd query Themis list-account
 ```
 
 You can get specific individual groups, polls and accounts:
 ```bash
-Themiscli query Themis get-group
-Themiscli query Themis get-poll
-Themiscli query Themis get-account
+Themisd query Themis show-group [group]
+Themisd query Themis show-poll [poll]
+Themisd query Themis show-account [account]
 ```
 
 Accounts can be listed by a specific group or wallet
 ```bash
-Themiscli query Themis list-group-accounts [group ID]
-Themiscli query Themis list-user-accounts [wallet ID]
+Themisd query Themis list-group-account [group ID]
+Themisd query Themis list-user-account [wallet ID]
 ```
 
 Polls can be listed by a specific group
 ```bash
-Themiscli query Themis list-group-poll [group ID]
+Themisd query Themis list-group-poll [group ID]
 ```
 
 ### Docker Images And Pi Images
