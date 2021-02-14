@@ -20,3 +20,19 @@ const (
 func KeyPrefix(p string) []byte {
 	return []byte(p)
 }
+
+const (
+	GroupKey      = "Group-value-"
+	GroupCountKey = "Group-count-"
+)
+
+const (
+	AccountKey      = "Account-value-"
+	AccountPtrKey   = "Account-ptr-value-"
+	AccountCountKey = "Account-count-"
+)
+
+const (
+	PollKey      = "Poll-value-"
+	PollCountKey = "Poll-count-"
+)

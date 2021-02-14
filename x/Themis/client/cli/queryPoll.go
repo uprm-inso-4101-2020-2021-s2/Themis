@@ -1,0 +1,104 @@
+package cli
+
+import (
+	"context"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/spf13/cobra"
+	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
+)
+
+func CmdListPoll() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "list-poll",
+		Short: "list all poll",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryAllPollRequest{
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.PollAll(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdListGroupPoll() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "list-group-poll [group]",
+		Short: "list all poll inside a group",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryAllGroupPollRequest{
+				Group:      string(args[0]),
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.GroupPollAll(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdShowPoll() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "show-poll [id]",
+		Short: "shows a poll",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryGetPollRequest{
+				Id: args[0],
+			}
+
+			res, err := queryClient.Poll(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}

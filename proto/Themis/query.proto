@@ -4,12 +4,109 @@ package uprminso410120202021s2.Themis.Themis;
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
+import "Themis/poll.proto";
+import "Themis/account.proto";
+import "Themis/group.proto";
 
 option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types";
 
 // Query defines the gRPC querier service.
 service Query {
     // this line is used by starport scaffolding # 2
+	rpc Poll(QueryGetPollRequest) returns (QueryGetPollResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/poll/{id}";
+	}
+	rpc PollAll(QueryAllPollRequest) returns (QueryAllPollResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/poll";
+	}
+	rpc GroupPollAll(QueryAllGroupPollRequest) returns (QueryAllPollResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/poll/{group}";
+	}
+
+	rpc Account(QueryGetAccountRequest) returns (QueryGetAccountResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account/{id}";
+	}
+	rpc AccountAll(QueryAllAccountRequest) returns (QueryAllAccountResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account";
+	}
+	rpc UserAccountAll(QueryAllUserAccountRequest) returns (QueryAllAccountResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account/{user}";
+	}
+	rpc GroupAccountAll(QueryAllGroupAccountRequest) returns (QueryAllAccountResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account/{group}";
+	}
+
+
+	rpc Group(QueryGetGroupRequest) returns (QueryGetGroupResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/group/{id}";
+	}
+	rpc GroupAll(QueryAllGroupRequest) returns (QueryAllGroupResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/group";
+	}
+
 }
 
 // this line is used by starport scaffolding # 3
+message QueryGetPollRequest {
+	string id = 1;
+}
+
+message QueryGetPollResponse {
+	Poll Poll = 1;
+}
+
+message QueryAllPollRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllGroupPollRequest {
+	string group = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryAllPollResponse {
+	repeated Poll Poll = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message QueryGetAccountRequest {
+	string id = 1;
+}
+
+message QueryGetAccountResponse {
+	Account Account = 1;
+}
+
+message QueryAllAccountRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllGroupAccountRequest {
+	string group = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryAllUserAccountRequest {
+	string user = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryAllAccountResponse {
+	repeated Account Account = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message QueryGetGroupRequest {
+	string id = 1;
+}
+
+message QueryGetGroupResponse {
+	Group Group = 1;
+}
+
+message QueryAllGroupRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllGroupResponse {
+	repeated Group Group = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

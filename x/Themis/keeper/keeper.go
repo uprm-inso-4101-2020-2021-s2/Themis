@@ -29,3 +29,7 @@ func NewKeeper(cdc codec.Marshaler, storeKey, memKey sdk.StoreKey) *Keeper {
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+func (k Keeper) NewKey(item1 string, item2 string) string {
+	return item1 + "-" + item2
+}

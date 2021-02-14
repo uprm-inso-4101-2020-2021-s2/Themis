@@ -1,0 +1,23 @@
+syntax = "proto3";
+package uprminso410120202021s2.Themis.Themis;
+
+option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types";
+
+import "gogoproto/gogo.proto";
+
+message Group {
+  string creator = 1;
+  string id = 2;
+  string name = 3; 
+}
+
+message MsgCreateGroup {
+  string creator = 1;
+  string name = 2; 
+}
+
+message MsgSetGroupName {
+  string creator = 1;
+  string id = 2;
+  string name = 3;
+}

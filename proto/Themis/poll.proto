@@ -1,0 +1,36 @@
+syntax = "proto3";
+package uprminso410120202021s2.Themis.Themis;
+
+option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types";
+
+import "gogoproto/gogo.proto";
+
+message Poll {
+  string id = 1;
+  string group = 2;
+  string title = 3;
+  string description = 4;
+  repeated string options = 5;
+  int64  deadline = 6;
+}
+
+message MsgCreatePoll {
+  string creator = 1;
+  string group = 2; 
+  string title = 3; 
+  string description = 4; 
+  repeated string options = 5;
+  int64 deadline = 6;
+}
+
+message MsgSetPollDesc {
+  string creator = 1;
+  string id = 2;
+  string description = 3;
+}
+
+message MsgExtendPollDeadline {
+  string creator = 1;
+  string id = 2;
+  int64  deadline = 3;
+}
