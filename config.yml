@@ -3,6 +3,13 @@ accounts:
     coins: ["1000token", "100000000stake"]
   - name: bob
     coins: ["500token"]
+  - name: beni
+    coins: ["500token"]
+  - name: pico
+    coins: ["500token"]
 validator:
   name: alice
   staked: "100000000stake"
+
+build:
+  binary: "themis"

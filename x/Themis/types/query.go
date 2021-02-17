@@ -20,6 +20,8 @@ const (
 )
 
 const (
-	QueryGetVote  = "get-vote"
-	QueryListVote = "list-vote"
+	QueryGetVote      = "get-vote"
+	QueryListVote     = "list-vote"
+	QueryListUserVote = "list-user-vote"
+	QueryListPollVote = "list-poll-vote"
 )

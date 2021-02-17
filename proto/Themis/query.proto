@@ -13,6 +13,7 @@ option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/type
 
 // Query defines the gRPC querier service.
 service Query {
+	//TODO: remove endpoint prefix "/uprm-inso-4101-2020-2021-s2/Themis"
     // this line is used by starport scaffolding # 2
 	rpc Vote(QueryGetVoteRequest) returns (QueryGetVoteResponse) {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/{id}";
@@ -20,11 +21,12 @@ service Query {
 	rpc VoteAll(QueryAllVoteRequest) returns (QueryAllVoteResponse) {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote";
 	}
+	//TODO: not querying correctly
 	rpc UserVoteAll(QueryAllUserVoteRequest) returns (QueryAllVoteResponse) {
-		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/{user}";
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/user/{user}";
 	}
 	rpc PollVoteAll(QueryAllPollVoteRequest) returns (QueryAllVoteResponse) {
-		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/{poll}";
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/poll/{poll}";
 	}
 
 	rpc Poll(QueryGetPollRequest) returns (QueryGetPollResponse) {
@@ -34,7 +36,7 @@ service Query {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/poll";
 	}
 	rpc GroupPollAll(QueryAllGroupPollRequest) returns (QueryAllPollResponse) {
-		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/poll/{group}";
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/poll/group/{group}";
 	}
 
 	rpc Account(QueryGetAccountRequest) returns (QueryGetAccountResponse) {
@@ -44,10 +46,10 @@ service Query {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account";
 	}
 	rpc UserAccountAll(QueryAllUserAccountRequest) returns (QueryAllAccountResponse) {
-		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account/{user}";
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account/user/{user}";
 	}
 	rpc GroupAccountAll(QueryAllGroupAccountRequest) returns (QueryAllAccountResponse) {
-		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account/{group}";
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/account/group/{group}";
 	}
 
 
