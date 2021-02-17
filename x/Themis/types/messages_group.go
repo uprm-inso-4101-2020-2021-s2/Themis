@@ -7,7 +7,7 @@ import (
 
 var _ sdk.Msg = &MsgCreateGroup{}
 
-//TODO: change group IDs to reflect user so searching by key queries the individual users
+//TODO: group IDs do not reflect the creator, update this so the creator is part of the ID, this allows for user based queries in groups
 
 func NewMsgCreateGroup(creator string, name string) *MsgCreateGroup {
 	return &MsgCreateGroup{

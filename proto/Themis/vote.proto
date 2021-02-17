@@ -1,0 +1,23 @@
+syntax = "proto3";
+package uprminso410120202021s2.Themis.Themis;
+
+option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types";
+
+import "gogoproto/gogo.proto";
+//TODO: add a date value, so vote date gets recorded
+message Vote {
+  string id = 1;
+  string account = 2;
+  string poll = 3;
+  int32  option = 4;
+}
+
+message VotePtr {
+  string id = 1;
+}
+
+message MsgCreateVote {
+  string creator = 1;
+  string poll = 2;
+  int32  option = 3;
+}

@@ -38,7 +38,7 @@ func (k Keeper) AccountAll(c context.Context, req *types.QueryAllAccountRequest)
 	return &types.QueryAllAccountResponse{Account: accounts, Pagination: pageRes}, nil
 }
 
-func (k Keeper) UserAccountAll(c context.Context, req *types.QueryAllUserAccountRequest) (*types.QueryAllAccountResponse, error) {
+func (k Keeper) GroupAccountAll(c context.Context, req *types.QueryAllGroupAccountRequest) (*types.QueryAllAccountResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -49,7 +49,7 @@ func (k Keeper) UserAccountAll(c context.Context, req *types.QueryAllUserAccount
 	store := ctx.KVStore(k.storeKey)
 	accountStore := prefix.NewStore(store, types.KeyPrefix(types.AccountPtrKey))
 
-	pageRes, err := PaginatePrefix(accountStore, types.KeyPrefix(types.AccountPtrKey+req.User), req.Pagination, func(key []byte, value []byte) error {
+	pageRes, err := PaginatePrefix(accountStore, types.KeyPrefix(types.AccountPtrKey+req.Group), req.Pagination, func(key []byte, value []byte) error {
 		var account types.Account
 		var accountPtr types.AccountPTR
 
@@ -70,7 +70,7 @@ func (k Keeper) UserAccountAll(c context.Context, req *types.QueryAllUserAccount
 	return &types.QueryAllAccountResponse{Account: accounts, Pagination: pageRes}, nil
 }
 
-func (k Keeper) GroupAccountAll(c context.Context, req *types.QueryAllGroupAccountRequest) (*types.QueryAllAccountResponse, error) {
+func (k Keeper) UserAccountAll(c context.Context, req *types.QueryAllUserAccountRequest) (*types.QueryAllAccountResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -81,7 +81,7 @@ func (k Keeper) GroupAccountAll(c context.Context, req *types.QueryAllGroupAccou
 	store := ctx.KVStore(k.storeKey)
 	accountStore := prefix.NewStore(store, types.KeyPrefix(types.AccountKey))
 
-	pageRes, err := PaginatePrefix(accountStore, types.KeyPrefix(types.AccountKey+req.Group), req.Pagination, func(key []byte, value []byte) error {
+	pageRes, err := PaginatePrefix(accountStore, types.KeyPrefix(types.AccountKey+req.User), req.Pagination, func(key []byte, value []byte) error {
 		var account types.Account
 		if err := k.cdc.UnmarshalBinaryBare(value, &account); err != nil {
 			return err

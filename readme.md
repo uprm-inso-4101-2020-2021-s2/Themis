@@ -91,7 +91,11 @@ exist already. Let's assume your friend's wallet is cosmos02:
 Themisd tx Themis set-account-vouchers 1234 cosmos02 3 --from cosmos01
 ```
 
-VOTING NOT YET DONE
+Now your friend wants to vote, so lets go ahead and vote!
+```bash
+# [poll] [option]
+Themisd tx Themis create-vote 1234-0 1 --from cosmos02
+```
 
 ### Queries
 

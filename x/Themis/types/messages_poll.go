@@ -99,8 +99,11 @@ func (msg *MsgSetPollDesc) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
+	if msg.Id == "" {
+		return sdkerrors.Wrapf(ErrInvalidPoll, "Poll can't empty")
+	}
 	if msg.Description == "" || len(msg.Description) > maxDescSize {
-		return sdkerrors.Wrapf(ErrInvalidPollTitle, "Poll description can't be empty or longer than (%s) characters", maxDescSize)
+		return sdkerrors.Wrapf(ErrInvalidPollDesc, "Poll description can't be empty or longer than (%s) characters", maxDescSize)
 	}
 	return nil
 }
@@ -140,6 +143,9 @@ func (msg *MsgExtendPollDeadline) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+	if msg.Id == "" {
+		return sdkerrors.Wrapf(ErrInvalidPoll, "Poll can't empty")
 	}
 	if msg.Deadline <= time.Now().Unix() {
 		return sdkerrors.Wrapf(ErrInvalidPollDate, "Deadline must be a date in the future")

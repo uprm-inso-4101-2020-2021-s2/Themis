@@ -3,8 +3,6 @@
 # Later, more devices will be supported, as well.
 # The "base" is built by: https://github.com/faddat/sos
 # The base image is located at: https://hub.docker.com/r/faddat/spos
-# TODO: Replace this with a system that fetches SOS-light, loop-mounts the image, modifies hostname, adds docker compose run, and exits.
-
 name: Rpi
 on: [push, pull_request]
 

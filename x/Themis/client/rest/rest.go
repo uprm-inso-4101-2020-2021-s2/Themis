@@ -23,10 +23,18 @@ func RegisterRoutes(clientCtx client.Context, r *mux.Router) {
 	registerQueryRoutes(clientCtx, r)
 	registerTxHandlers(clientCtx, r)
 
+	registerQueryRoutes(clientCtx, r)
+	registerTxHandlers(clientCtx, r)
+
 }
 
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	// this line is used by starport scaffolding # 3
+	r.HandleFunc("/Themis/votes/{id}", getVoteHandler(clientCtx)).Methods("GET")
+	r.HandleFunc("/Themis/votes/{user}", listUserVoteHandler(clientCtx)).Methods("GET")
+	r.HandleFunc("/Themis/votes/{poll}", listPollVoteHandler(clientCtx)).Methods("GET")
+	r.HandleFunc("/Themis/votes", listVoteHandler(clientCtx)).Methods("GET")
+
 	r.HandleFunc("/Themis/polls/{id}", getPollHandler(clientCtx)).Methods("GET")
 	r.HandleFunc("/Themis/polls", listPollHandler(clientCtx)).Methods("GET")
 	r.HandleFunc("/Themis/polls/{group}", listGroupPollHandler(clientCtx)).Methods("GET")
@@ -43,6 +51,8 @@ func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 
 func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
 	// this line is used by starport scaffolding # 4
+	r.HandleFunc("/Themis/votes", createVoteHandler(clientCtx)).Methods("POST")
+
 	r.HandleFunc("/Themis/polls", createPollHandler(clientCtx)).Methods("POST")
 	r.HandleFunc("/Themis/polls", setPollDescHandler(clientCtx)).Methods("POST")
 	r.HandleFunc("/Themis/polls", extendPollDeadlineHandler(clientCtx)).Methods("POST")

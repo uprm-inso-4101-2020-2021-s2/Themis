@@ -42,7 +42,7 @@ func (k Keeper) CreateAccount(ctx sdk.Context, msg types.MsgAddAccountVouchers) 
 	count := k.GetAccountCount(ctx)
 	var account = types.Account{
 		User:     msg.User,
-		Id:       k.NewKey(msg.Group, msg.User),
+		Id:       k.NewKey(msg.User, msg.Group),
 		Group:    msg.Group,
 		Vouchers: msg.Vouchers,
 	}
@@ -54,7 +54,7 @@ func (k Keeper) CreateAccount(ctx sdk.Context, msg types.MsgAddAccountVouchers) 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
 	storePtr := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPtrKey))
 	key := types.KeyPrefix(types.AccountKey + account.Id)
-	keyPtr := types.KeyPrefix(types.AccountPtrKey + k.NewKey(msg.User, msg.Group))
+	keyPtr := types.KeyPrefix(types.AccountPtrKey + k.NewKey(msg.Group, msg.User))
 	value := k.cdc.MustMarshalBinaryBare(&account)
 	valuePtr := k.cdc.MustMarshalBinaryBare(&accountPtr)
 	store.Set(key, value)
@@ -86,6 +86,11 @@ func (k Keeper) GetAccount(ctx sdk.Context, key string) types.Account {
 	return account
 }
 
+// GetAccountId returns account ID from its user and group
+func (k Keeper) GetAccountId(ctx sdk.Context, user string, group string) string {
+	return k.GetAccount(ctx, k.NewKey(user, group)).Id
+}
+
 // HasAccount checks if the account exists
 func (k Keeper) HasAccount(ctx sdk.Context, id string) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
@@ -101,6 +106,18 @@ func (k Keeper) AccountExistsInGroup(ctx sdk.Context, user string, group string)
 // GetAccountOwner returns the creator of the account
 func (k Keeper) GetAccountOwner(ctx sdk.Context, key string) string {
 	return k.GetAccount(ctx, key).User
+}
+
+// GetAccountVouchers returns the total vouchers remaining
+func (k Keeper) GetAccountVouchers(ctx sdk.Context, key string) int64 {
+	return k.GetAccount(ctx, key).Vouchers
+}
+
+// EditAccountVouchers adds the given amount to the vouchers
+func (k Keeper) EditAccountVouchers(ctx sdk.Context, key string, v int64) {
+	account := k.GetAccount(ctx, key)
+	account.Vouchers += v
+	k.SetAccount(ctx, account)
 }
 
 // DeleteAccount deletes a account
@@ -125,10 +142,10 @@ func (k Keeper) GetAllAccount(ctx sdk.Context) (msgs []types.Account) {
 	return
 }
 
-// GetAllUserAccount returns all account
-func (k Keeper) GetAllUserAccount(ctx sdk.Context, user string) (msgs []types.Account) {
+// GetAllGroupAccount returns all account
+func (k Keeper) GetAllGroupAccount(ctx sdk.Context, group string) (msgs []types.Account) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPtrKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountPtrKey+user))
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountPtrKey+group))
 
 	defer iterator.Close()
 
@@ -142,10 +159,10 @@ func (k Keeper) GetAllUserAccount(ctx sdk.Context, user string) (msgs []types.Ac
 	return
 }
 
-// GetAllGroupAccount returns all account
-func (k Keeper) GetAllGroupAccount(ctx sdk.Context, group string) (msgs []types.Account) {
+// GetAllUserAccount returns all account
+func (k Keeper) GetAllUserAccount(ctx sdk.Context, user string) (msgs []types.Account) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountKey+group))
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountKey+user))
 
 	defer iterator.Close()
 

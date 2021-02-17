@@ -36,3 +36,9 @@ const (
 	PollKey      = "Poll-value-"
 	PollCountKey = "Poll-count-"
 )
+
+const (
+	VoteKey      = "Vote-value-"
+	VotePtrKey   = "Vote-ptr-value-"
+	VoteCountKey = "Vote-count-"
+)
