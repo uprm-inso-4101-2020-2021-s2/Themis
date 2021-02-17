@@ -8,6 +8,8 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
+	cdc.RegisterConcrete(&MsgCreateVote{}, "Themis/CreateVote", nil)
+
 	cdc.RegisterConcrete(&MsgCreatePoll{}, "Themis/CreatePoll", nil)
 	cdc.RegisterConcrete(&MsgSetPollDesc{}, "Themis/SetPollDesc", nil)
 	cdc.RegisterConcrete(&MsgExtendPollDeadline{}, "Themis/ExtendPollDeadline", nil)
@@ -21,6 +23,9 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	// this line is used by starport scaffolding # 3
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgCreateVote{},
+	)
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreatePoll{},
 		&MsgSetPollDesc{},

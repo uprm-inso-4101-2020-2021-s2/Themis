@@ -18,4 +18,8 @@ var (
 	ErrInvalidPollDate   = sdkerrors.Register(ModuleName, 1107, "Invalid poll deadline")
 	ErrInvalidPollDesc   = sdkerrors.Register(ModuleName, 1108, "Invalid poll description")
 	ErrInvalidPollOptns  = sdkerrors.Register(ModuleName, 1109, "Invalid poll options")
+	ErrInvalidVoteOption = sdkerrors.Register(ModuleName, 1110, "Invalid vote options")
+	ErrPollDateReacher   = sdkerrors.Register(ModuleName, 1111, "Poll deadline has already been reached")
+	ErrInvalidAccount    = sdkerrors.Register(ModuleName, 1112, "Account doesn't exist")
+	ErrNoAccountFunds    = sdkerrors.Register(ModuleName, 1113, "Account doesn't have the required vouchers")
 )

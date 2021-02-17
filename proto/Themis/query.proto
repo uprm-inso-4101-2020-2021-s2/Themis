@@ -4,6 +4,7 @@ package uprminso410120202021s2.Themis.Themis;
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
+import "Themis/vote.proto";
 import "Themis/poll.proto";
 import "Themis/account.proto";
 import "Themis/group.proto";
@@ -13,6 +14,19 @@ option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/type
 // Query defines the gRPC querier service.
 service Query {
     // this line is used by starport scaffolding # 2
+	rpc Vote(QueryGetVoteRequest) returns (QueryGetVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/{id}";
+	}
+	rpc VoteAll(QueryAllVoteRequest) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote";
+	}
+	rpc UserVoteAll(QueryAllUserVoteRequest) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/{user}";
+	}
+	rpc PollVoteAll(QueryAllPollVoteRequest) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/{poll}";
+	}
+
 	rpc Poll(QueryGetPollRequest) returns (QueryGetPollResponse) {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/poll/{id}";
 	}
@@ -47,6 +61,30 @@ service Query {
 }
 
 // this line is used by starport scaffolding # 3
+message QueryGetVoteRequest {
+	string id = 1;
+}
+
+message QueryGetVoteResponse {
+	Vote Vote = 1;
+}
+
+message QueryAllVoteRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+message QueryAllUserVoteRequest {
+	string user = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+message QueryAllPollVoteRequest {
+	string poll = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryAllVoteResponse {
+	repeated Vote Vote = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
 message QueryGetPollRequest {
 	string id = 1;
 }

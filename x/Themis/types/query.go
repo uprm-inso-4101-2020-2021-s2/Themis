@@ -18,3 +18,8 @@ const (
 	QueryListPoll      = "list-poll"
 	QueryListGroupPoll = "list-group-poll"
 )
+
+const (
+	QueryGetVote  = "get-vote"
+	QueryListVote = "list-vote"
+)

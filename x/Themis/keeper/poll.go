@@ -95,7 +95,22 @@ func (k Keeper) HasPoll(ctx sdk.Context, id string) bool {
 
 // GetPollOwner returns the creator of the poll
 func (k Keeper) GetPollOwner(ctx sdk.Context, key string) string {
-	return k.GetGroupOwner(ctx, k.GetPoll(ctx, key).Group)
+	return k.GetGroupOwner(ctx, k.GetPollGroup(ctx, key))
+}
+
+// GetPollGroup returns the group the poll belongs to
+func (k Keeper) GetPollGroup(ctx sdk.Context, key string) string {
+	return k.GetPoll(ctx, key).Group
+}
+
+//GetPollOptions return the options for the poll
+func (k Keeper) GetPollOptions(ctx sdk.Context, key string) []string {
+	return k.GetPoll(ctx, key).Options
+}
+
+//GetPollDeadline return the deadline for the poll
+func (k Keeper) GetPollDeadline(ctx sdk.Context, key string) int64 {
+	return k.GetPoll(ctx, key).Deadline
 }
 
 // DeletePoll deletes a poll

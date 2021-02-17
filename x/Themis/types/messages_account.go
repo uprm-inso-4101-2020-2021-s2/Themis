@@ -7,8 +7,6 @@ import (
 
 var _ sdk.Msg = &MsgAddAccountVouchers{}
 
-//TODO: List users and list groups not working
-
 func NewMsgAddAccountVouchers(groupOwner string, user string, group string, vouchers int64) *MsgAddAccountVouchers {
 	return &MsgAddAccountVouchers{
 		GroupOwner: groupOwner,

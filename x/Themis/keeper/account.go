@@ -86,6 +86,11 @@ func (k Keeper) GetAccount(ctx sdk.Context, key string) types.Account {
 	return account
 }
 
+// GetAccountId returns account ID from its user and group
+func (k Keeper) GetAccountId(ctx sdk.Context, user string, group string) string {
+	return k.GetAccount(ctx, k.NewKey(group, user)).Id
+}
+
 // HasAccount checks if the account exists
 func (k Keeper) HasAccount(ctx sdk.Context, id string) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
@@ -95,12 +100,24 @@ func (k Keeper) HasAccount(ctx sdk.Context, id string) bool {
 // AccountExistsInGroup checks if the account exists
 func (k Keeper) AccountExistsInGroup(ctx sdk.Context, user string, group string) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	return store.Has(types.KeyPrefix(types.AccountKey + k.NewKey(user, group)))
+	return store.Has(types.KeyPrefix(types.AccountKey + k.NewKey(group, user)))
 }
 
 // GetAccountOwner returns the creator of the account
 func (k Keeper) GetAccountOwner(ctx sdk.Context, key string) string {
 	return k.GetAccount(ctx, key).User
+}
+
+// GetAccountVouchers returns the total vouchers remaining
+func (k Keeper) GetAccountVouchers(ctx sdk.Context, key string) int64 {
+	return k.GetAccount(ctx, key).Vouchers
+}
+
+// EditAccountVouchers adds the given amount to the vouchers
+func (k Keeper) EditAccountVouchers(ctx sdk.Context, key string, v int64) {
+	account := k.GetAccount(ctx, key)
+	account.Vouchers += v
+	k.SetAccount(ctx, account)
 }
 
 // DeleteAccount deletes a account
