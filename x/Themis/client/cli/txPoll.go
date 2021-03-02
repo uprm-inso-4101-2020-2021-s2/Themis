@@ -10,9 +10,25 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+func GetPollCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "poll",
+		Short:                      "Poll subcommands",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdCreatePoll())
+	cmd.AddCommand(CmdSetPollDesc())
+	cmd.AddCommand(CmdExtendPollDeadline())
+
+	return cmd
+}
+
 func CmdCreatePoll() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-poll [group] [title] [description] [deadline] [options]",
+		Use:   "create [group] [title] [description] [deadline] [options]",
 		Short: "Creates a new poll",
 		Args:  cobra.MinimumNArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,7 +58,7 @@ func CmdCreatePoll() *cobra.Command {
 
 func CmdSetPollDesc() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-poll-description [group] [description]",
+		Use:   "set-description [poll] [description]",
 		Short: "Changes the poll's description",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -69,7 +85,7 @@ func CmdSetPollDesc() *cobra.Command {
 
 func CmdExtendPollDeadline() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "extend-poll-deadline [group] [deadline]",
+		Use:   "extend-deadline [poll] [deadline]",
 		Short: "Changes the poll's deadline to one greater than the current.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

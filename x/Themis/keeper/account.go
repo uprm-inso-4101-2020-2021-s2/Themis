@@ -97,7 +97,7 @@ func (k Keeper) HasAccount(ctx sdk.Context, id string) bool {
 	return store.Has(types.KeyPrefix(types.AccountKey + id))
 }
 
-// AccountExistsInGroup checks if the account exists
+// AccountExistsInGroup checks if the account exists in group
 func (k Keeper) AccountExistsInGroup(ctx sdk.Context, user string, group string) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
 	return store.Has(types.KeyPrefix(types.AccountKey + k.NewKey(user, group)))

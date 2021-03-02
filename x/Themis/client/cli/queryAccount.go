@@ -9,10 +9,28 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+func GetQueryAccountCmd(queryRoute string) *cobra.Command {
+	// Group Themis queries under a subcommand
+	cmd := &cobra.Command{
+		Use:                        "account",
+		Short:                      "Querying commands for accounts",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdListAccount())
+	cmd.AddCommand(CmdListUserAccount())
+	cmd.AddCommand(CmdListGroupAccount())
+	cmd.AddCommand(CmdShowAccount())
+
+	return cmd
+}
+
 func CmdListAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-account",
-		Short: "list all account",
+		Use:   "list",
+		Short: "list accounts",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -43,8 +61,8 @@ func CmdListAccount() *cobra.Command {
 
 func CmdListUserAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-user-account [user]",
-		Short: "list all user accounts",
+		Use:   "user [user]",
+		Short: "list all accounts for the user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -77,8 +95,8 @@ func CmdListUserAccount() *cobra.Command {
 
 func CmdListGroupAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-group-account [group]",
-		Short: "list all account in group",
+		Use:   "group [group]",
+		Short: "list all accounts in group",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -111,8 +129,8 @@ func CmdListGroupAccount() *cobra.Command {
 
 func CmdShowAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-account [id]",
-		Short: "shows a account",
+		Use:   "show [account]",
+		Short: "shows an account",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

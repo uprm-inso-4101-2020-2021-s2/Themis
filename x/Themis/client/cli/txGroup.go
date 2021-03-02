@@ -9,9 +9,24 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+func GetGroupCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "group",
+		Short:                      "Group subcommands",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdCreateGroup())
+	cmd.AddCommand(CmdSetGroupName())
+
+	return cmd
+}
+
 func CmdCreateGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-group [name]",
+		Use:   "create [name]",
 		Short: "Creates a new group",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -37,7 +52,7 @@ func CmdCreateGroup() *cobra.Command {
 
 func CmdSetGroupName() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-group-name [group ID] [name]",
+		Use:   "set-name [group] [name]",
 		Short: "Changes group's name",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -9,10 +9,28 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+func GetQueryGroupCmd(queryRoute string) *cobra.Command {
+	// Group Themis queries under a subcommand
+	cmd := &cobra.Command{
+		Use:                        "group",
+		Short:                      "Querying commands for groups",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdListGroup())
+	cmd.AddCommand(CmdShowGroup())
+
+	return cmd
+}
+
+//TODO: List user's groups
+
 func CmdListGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-group",
-		Short: "list all group",
+		Use:   "list",
+		Short: "list all groups",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -43,7 +61,7 @@ func CmdListGroup() *cobra.Command {
 
 func CmdShowGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-group [id]",
+		Use:   "show [group]",
 		Short: "shows a group",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
