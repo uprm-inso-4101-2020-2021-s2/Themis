@@ -22,16 +22,10 @@ func GetTxCmd() *cobra.Command {
 
 	// this line is used by starport scaffolding # 1
 
-	cmd.AddCommand(CmdCreateVote())
-
-	cmd.AddCommand(CmdCreatePoll())
-	cmd.AddCommand(CmdSetPollDesc())
-	cmd.AddCommand(CmdExtendPollDeadline())
-
-	cmd.AddCommand(CmdSetAccountVoucher())
-
-	cmd.AddCommand(CmdCreateGroup())
-	cmd.AddCommand(CmdSetGroupName())
+	cmd.AddCommand(GetVoteCmd())
+	cmd.AddCommand(GetPollCmd())
+	cmd.AddCommand(GetAccountCmd())
+	cmd.AddCommand(GetGroupCmd())
 
 	return cmd
 }

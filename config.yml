@@ -1,3 +1,4 @@
+version: 0.2
 accounts:
   - name: alice
     coins: ["1000token", "100000000stake"]
@@ -12,4 +13,4 @@ validator:
   staked: "100000000stake"
 
 build:
-  binary: "themis"
+  binary: "Themisd"

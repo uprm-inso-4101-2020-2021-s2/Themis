@@ -10,9 +10,23 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+func GetVoteCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "vote",
+		Short:                      "Vote subcommands",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdCreateVote())
+
+	return cmd
+}
+
 func CmdCreateVote() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-vote [poll] [option]",
+		Use:   "create [poll] [option]",
 		Short: "Creates a new vote",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

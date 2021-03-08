@@ -10,10 +10,24 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+func GetAccountCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "account",
+		Short:                      "Account subcommands",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdSetAccountVoucher())
+
+	return cmd
+}
+
 func CmdSetAccountVoucher() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-account-vouchers [user] [group] [vouchers]",
-		Short: "Add or subtract vouchers to account, if no account exist, creates one",
+		Use:   "set-vouchers [user] [group] [vouchers]",
+		Short: "Add or subtract vouchers to account, if no account exist, creates one.",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			user := args[0]
