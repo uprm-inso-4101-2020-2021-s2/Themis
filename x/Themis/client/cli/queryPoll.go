@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -9,27 +10,10 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
-func GetQueryPollCmd(queryRoute string) *cobra.Command {
-	// Group Themis queries under a subcommand
-	cmd := &cobra.Command{
-		Use:                        "poll",
-		Short:                      "Querying commands for polls",
-		DisableFlagParsing:         true,
-		SuggestionsMinimumDistance: 2,
-		RunE:                       client.ValidateCmd,
-	}
-
-	cmd.AddCommand(CmdListPoll())
-	cmd.AddCommand(CmdListGroupPoll())
-	cmd.AddCommand(CmdShowPoll())
-
-	return cmd
-}
-
 func CmdListPoll() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "list all polls",
+		Use:   "list-poll",
+		Short: "list all poll",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -58,43 +42,9 @@ func CmdListPoll() *cobra.Command {
 	return cmd
 }
 
-func CmdListGroupPoll() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "group [group]",
-		Short: "list all polls inside a group",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			params := &types.QueryAllGroupPollRequest{
-				Group:      string(args[0]),
-				Pagination: pageReq,
-			}
-
-			res, err := queryClient.GroupPollAll(context.Background(), params)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
 func CmdShowPoll() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show [poll]",
+		Use:   "show-poll [id]",
 		Short: "shows a poll",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -102,8 +52,13 @@ func CmdShowPoll() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
 			params := &types.QueryGetPollRequest{
-				Id: args[0],
+				Id: id,
 			}
 
 			res, err := queryClient.Poll(context.Background(), params)

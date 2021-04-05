@@ -7,12 +7,10 @@ import (
 
 var _ sdk.Msg = &MsgCreateGroup{}
 
-//TODO: group IDs do not reflect the creator, update this so the creator is part of the ID, this allows for user based queries in groups
-
-func NewMsgCreateGroup(creator string, name string) *MsgCreateGroup {
+func NewMsgCreateGroup(name string, owner string) *MsgCreateGroup {
 	return &MsgCreateGroup{
-		Creator: creator,
-		Name:    name,
+		Name:  name,
+		Owner: owner,
 	}
 }
 
@@ -25,7 +23,7 @@ func (msg *MsgCreateGroup) Type() string {
 }
 
 func (msg *MsgCreateGroup) GetSigners() []sdk.AccAddress {
-	creator, err := sdk.AccAddressFromBech32(msg.Creator)
+	creator, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		panic(err)
 	}
@@ -38,35 +36,80 @@ func (msg *MsgCreateGroup) GetSignBytes() []byte {
 }
 
 func (msg *MsgCreateGroup) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Creator)
+	_, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
-	if msg.Name == "" {
-		return sdkerrors.Wrapf(ErrNameEmpty, "name can't be empty")
+	if msg.Name == "" || len(msg.Name) > MaxNameSize {
+		return sdkerrors.Wrapf(ErrInvalidName, "Name either too small or too large (%s)", msg.Name)
 	}
 	return nil
 }
 
-var _ sdk.Msg = &MsgSetGroupName{}
+var _ sdk.Msg = &MsgUpdateGroup{}
 
-func NewMsgSetGroupName(creator string, id string, name string) *MsgSetGroupName {
-	return &MsgSetGroupName{
-		Id:      id,
-		Creator: creator,
-		Name:    name,
+func NewMsgUpdateGroup(id uint64, name string, owner string, newOwner string) *MsgUpdateGroup {
+	return &MsgUpdateGroup{
+		Id:       id,
+		Name:     name,
+		Owner:    owner,
+		NewOwner: newOwner,
 	}
 }
 
-func (msg *MsgSetGroupName) Route() string {
+func (msg *MsgUpdateGroup) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgSetGroupName) Type() string {
-	return "SetGroupName"
+func (msg *MsgUpdateGroup) Type() string {
+	return "UpdateGroup"
 }
 
-func (msg *MsgSetGroupName) GetSigners() []sdk.AccAddress {
+func (msg *MsgUpdateGroup) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgUpdateGroup) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgUpdateGroup) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+	_, err = sdk.AccAddressFromBech32(msg.NewOwner)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+	if msg.Name == "" || len(msg.Name) > MaxNameSize {
+		return sdkerrors.Wrapf(ErrInvalidName, "Name either too small or too large (%s)", msg.Name)
+	}
+	return nil
+}
+
+var _ sdk.Msg = &MsgCreateGroup{}
+
+func NewMsgDeleteGroup(creator string, id uint64) *MsgDeleteGroup {
+	return &MsgDeleteGroup{
+		Id:      id,
+		Creator: creator,
+	}
+}
+func (msg *MsgDeleteGroup) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgDeleteGroup) Type() string {
+	return "DeleteGroup"
+}
+
+func (msg *MsgDeleteGroup) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
@@ -74,21 +117,15 @@ func (msg *MsgSetGroupName) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgSetGroupName) GetSignBytes() []byte {
+func (msg *MsgDeleteGroup) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgSetGroupName) ValidateBasic() error {
+func (msg *MsgDeleteGroup) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
-	}
-	if msg.Name == "" {
-		return sdkerrors.Wrapf(ErrNameEmpty, "name can't be empty")
-	}
-	if msg.Id == "" {
-		return sdkerrors.Wrapf(ErrInvalidGroup, "group ID can't be empty")
 	}
 	return nil
 }

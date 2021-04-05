@@ -17,7 +17,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/client/cli"
-	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/client/rest"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/keeper"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
@@ -74,7 +73,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 
 // RegisterRESTRoutes registers the capability module's REST service handlers.
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(clientCtx, rtr)
+	//rest.RegisterRoutes(clientCtx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.

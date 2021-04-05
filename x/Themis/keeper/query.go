@@ -32,23 +32,17 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		case types.QueryListPoll:
 			return listPoll(ctx, k, legacyQuerierCdc)
 
-		case types.QueryGetAccount:
-			return getAccount(ctx, path[1], k, legacyQuerierCdc)
-
-		case types.QueryListAccount:
-			return listAccount(ctx, k, legacyQuerierCdc)
-
-		case types.QueryListUserAccount:
-			return listUserAccount(ctx, k, legacyQuerierCdc, path[1])
-
-		case types.QueryListGroupAccount:
-			return listGroupAccount(ctx, k, legacyQuerierCdc, path[1])
-
 		case types.QueryGetGroup:
 			return getGroup(ctx, path[1], k, legacyQuerierCdc)
 
 		case types.QueryListGroup:
 			return listGroup(ctx, k, legacyQuerierCdc)
+
+		case types.QueryGetAccount:
+			return getAccount(ctx, path[1], k, legacyQuerierCdc)
+
+		case types.QueryListAccount:
+			return listAccount(ctx, k, legacyQuerierCdc)
 
 		default:
 			err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -9,28 +10,10 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
-func GetQueryGroupCmd(queryRoute string) *cobra.Command {
-	// Group Themis queries under a subcommand
-	cmd := &cobra.Command{
-		Use:                        "group",
-		Short:                      "Querying commands for groups",
-		DisableFlagParsing:         true,
-		SuggestionsMinimumDistance: 2,
-		RunE:                       client.ValidateCmd,
-	}
-
-	cmd.AddCommand(CmdListGroup())
-	cmd.AddCommand(CmdShowGroup())
-
-	return cmd
-}
-
-//TODO: List user's groups
-
 func CmdListGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "list all groups",
+		Use:   "list-group",
+		Short: "list all group",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -61,7 +44,7 @@ func CmdListGroup() *cobra.Command {
 
 func CmdShowGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show [group]",
+		Use:   "show-group [id]",
 		Short: "shows a group",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -69,8 +52,13 @@ func CmdShowGroup() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
 			params := &types.QueryGetGroupRequest{
-				Id: args[0],
+				Id: id,
 			}
 
 			res, err := queryClient.Group(context.Background(), params)

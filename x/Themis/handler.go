@@ -11,31 +11,60 @@ import (
 
 // NewHandler ...
 func NewHandler(k keeper.Keeper) sdk.Handler {
+	msgServer := keeper.NewMsgServerImpl(k)
+
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
 		// this line is used by starport scaffolding # 1
 		case *types.MsgCreateVote:
-			return handleMsgCreateVote(ctx, k, msg)
+			res, err := msgServer.CreateVote(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgUpdateVote:
+			res, err := msgServer.UpdateVote(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgDeleteVote:
+			res, err := msgServer.DeleteVote(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
 		case *types.MsgCreatePoll:
-			return handleMsgCreatePoll(ctx, k, msg)
+			res, err := msgServer.CreatePoll(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
-		case *types.MsgSetPollDesc:
-			return handleMsgSetPollDesc(ctx, k, msg)
+		case *types.MsgUpdatePoll:
+			res, err := msgServer.UpdatePoll(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
-		case *types.MsgExtendPollDeadline:
-			return handleMsgExtendPollDeadline(ctx, k, msg)
-
-		case *types.MsgAddAccountVouchers:
-			return handleMsgAddAccountVouchers(ctx, k, msg)
+		case *types.MsgDeletePoll:
+			res, err := msgServer.DeletePoll(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
 		case *types.MsgCreateGroup:
-			return handleMsgCreateGroup(ctx, k, msg)
+			res, err := msgServer.CreateGroup(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
-		case *types.MsgSetGroupName:
-			return handleMsgSetGroupName(ctx, k, msg)
+		case *types.MsgUpdateGroup:
+			res, err := msgServer.UpdateGroup(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgDeleteGroup:
+			res, err := msgServer.DeleteGroup(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgCreateAccount:
+			res, err := msgServer.CreateAccount(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgUpdateAccount:
+			res, err := msgServer.UpdateAccount(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgDeleteAccount:
+			res, err := msgServer.DeleteAccount(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)

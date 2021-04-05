@@ -16,7 +16,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	}
 
 	// Set vote count
-	k.SetVoteCount(ctx, int64(len(genState.VoteList)))
+	k.SetVoteCount(ctx, uint64(len(genState.VoteList)))
 
 	// Set all the poll
 	for _, elem := range genState.PollList {
@@ -24,15 +24,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	}
 
 	// Set poll count
-	k.SetPollCount(ctx, int64(len(genState.PollList)))
-
-	// Set all the account
-	for _, elem := range genState.AccountList {
-		k.SetAccount(ctx, *elem)
-	}
-
-	// Set account count
-	k.SetAccountCount(ctx, int64(len(genState.AccountList)))
+	k.SetPollCount(ctx, uint64(len(genState.PollList)))
 
 	// Set all the group
 	for _, elem := range genState.GroupList {
@@ -40,7 +32,15 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	}
 
 	// Set group count
-	k.SetGroupCount(ctx, int64(len(genState.GroupList)))
+	k.SetGroupCount(ctx, uint64(len(genState.GroupList)))
+
+	// Set all the account
+	for _, elem := range genState.AccountList {
+		k.SetAccount(ctx, *elem)
+	}
+
+	// Set account count
+	k.SetAccountCount(ctx, uint64(len(genState.AccountList)))
 
 }
 
@@ -63,18 +63,18 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		genesis.PollList = append(genesis.PollList, &elem)
 	}
 
-	// Get all account
-	accountList := k.GetAllAccount(ctx)
-	for _, elem := range accountList {
-		elem := elem
-		genesis.AccountList = append(genesis.AccountList, &elem)
-	}
-
 	// Get all group
 	groupList := k.GetAllGroup(ctx)
 	for _, elem := range groupList {
 		elem := elem
 		genesis.GroupList = append(genesis.GroupList, &elem)
+	}
+
+	// Get all account
+	accountList := k.GetAllAccount(ctx)
+	for _, elem := range accountList {
+		elem := elem
+		genesis.AccountList = append(genesis.AccountList, &elem)
 	}
 
 	return genesis

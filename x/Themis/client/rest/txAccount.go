@@ -8,23 +8,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
-// Used to not have an error if strconv is unused
-var _ = strconv.Itoa(42)
-
-type setAccountVoucherRequest struct {
-	BaseReq  rest.BaseReq `json:"base_req"`
-	Creator  string       `json:"creator"`
-	User     string       `json:"user"`
-	Group    string       `json:"group"`
-	Vouchers string       `json:"vouchers"`
+type createAccountRequest struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Creator string       `json:"creator"`
+	Name    string       `json:"name"`
 }
 
-func createSetAccountVoucherHandler(clientCtx client.Context) http.HandlerFunc {
+func createAccountHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req setAccountVoucherRequest
+		var req createAccountRequest
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
@@ -41,15 +37,91 @@ func createSetAccountVoucherHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		parsedGroup := req.Group
-		parsedUser := req.User
-		parsedVouchers, _ := strconv.ParseInt(req.Vouchers, 10, 64)
+		parsedName := req.Name
 
-		msg := types.NewMsgAddAccountVouchers(
+		msg := types.NewMsgCreateAccount(
 			req.Creator,
-			parsedUser,
-			parsedGroup,
-			parsedVouchers,
+			parsedName,
+		)
+
+		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+	}
+}
+
+type updateAccountRequest struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Creator string       `json:"creator"`
+	Name    string       `json:"name"`
+}
+
+func updateAccountHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+		if err != nil {
+			return
+		}
+
+		var req updateAccountRequest
+		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+
+		_, err = sdk.AccAddressFromBech32(req.Creator)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		parsedName := req.Name
+
+		msg := types.NewMsgUpdateAccount(
+			req.Creator,
+			id,
+			parsedName,
+		)
+
+		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+	}
+}
+
+type deleteAccountRequest struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Creator string       `json:"creator"`
+}
+
+func deleteAccountHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+		if err != nil {
+			return
+		}
+
+		var req deleteAccountRequest
+		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+
+		_, err = sdk.AccAddressFromBech32(req.Creator)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		msg := types.NewMsgDeleteAccount(
+			req.Creator,
+			id,
 		)
 
 		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)

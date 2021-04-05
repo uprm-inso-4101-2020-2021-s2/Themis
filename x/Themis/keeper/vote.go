@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/binary"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
@@ -8,7 +9,7 @@ import (
 )
 
 // GetVoteCount get the total number of vote
-func (k Keeper) GetVoteCount(ctx sdk.Context) int64 {
+func (k Keeper) GetVoteCount(ctx sdk.Context) uint64 {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteCountKey))
 	byteKey := types.KeyPrefix(types.VoteCountKey)
 	bz := store.Get(byteKey)
@@ -19,9 +20,9 @@ func (k Keeper) GetVoteCount(ctx sdk.Context) int64 {
 	}
 
 	// Parse bytes
-	count, err := strconv.ParseInt(string(bz), 10, 64)
+	count, err := strconv.ParseUint(string(bz), 10, 64)
 	if err != nil {
-		// Panic because the count should be always formattable to int64
+		// Panic because the count should be always formattable to iint64
 		panic("cannot decode count")
 	}
 
@@ -29,130 +30,117 @@ func (k Keeper) GetVoteCount(ctx sdk.Context) int64 {
 }
 
 // SetVoteCount set the total number of vote
-func (k Keeper) SetVoteCount(ctx sdk.Context, count int64) {
+func (k Keeper) SetVoteCount(ctx sdk.Context, count uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteCountKey))
 	byteKey := types.KeyPrefix(types.VoteCountKey)
-	bz := []byte(strconv.FormatInt(count, 10))
+	bz := []byte(strconv.FormatUint(count, 10))
 	store.Set(byteKey, bz)
 }
 
-// CreateVote creates a vote with a new id and update the count
-func (k Keeper) CreateVote(ctx sdk.Context, msg types.MsgCreateVote) {
+// AppendVote appends a vote in the store with a new id and update the count
+func (k Keeper) AppendVote(
+	ctx sdk.Context,
+	creator string,
+	poll uint64,
+	option string,
+) uint64 {
 	// Create the vote
 	count := k.GetVoteCount(ctx)
-
-	// Get group from poll
-	// Get account from creator and group
-	group := k.GetPollGroup(ctx, msg.Poll)
-	acc := k.GetAccountId(ctx, msg.Creator, group)
-
-	// Vote id are composed of pollID-accountID and the Ptrs are the opposite
 	var vote = types.Vote{
-		Id:      k.NewKey(msg.Poll, k.NewKey(acc, strconv.FormatInt(count, 10))),
-		Account: acc,
-		Poll:    msg.Poll,
-		Option:  msg.Option,
-	}
-
-	var votePtr = types.VotePtr{
-		Id: vote.Id,
+		Creator: creator,
+		Id:      count,
+		Poll:    poll,
+		Option:  option,
 	}
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
-	storePtr := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VotePtrKey))
-	key := types.KeyPrefix(types.VoteKey + vote.Id)
-	keyPtr := types.KeyPrefix(types.VotePtrKey + k.NewKey(acc, k.NewKey(msg.Poll, strconv.FormatInt(count, 10))))
 	value := k.cdc.MustMarshalBinaryBare(&vote)
-	valuePtr := k.cdc.MustMarshalBinaryBare(&votePtr)
-	store.Set(key, value)
-	storePtr.Set(keyPtr, valuePtr)
+	store.Set(GetVoteIDBytes(vote.Id), value)
+
+	idStr := strconv.FormatUint(vote.Id, 10)
+	pollStr := strconv.FormatUint(vote.Poll, 10)
+	groupStr := strconv.FormatUint(k.GetPoll(ctx, vote.Poll).Group, 10)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteGroupKey)).Set(types.GetStringBytes(groupStr+"-"+pollStr+"-"+idStr), value)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteUserKey)).Set(types.GetStringBytes(creator+"-"+pollStr+"-"+idStr), value)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteOptionKey)).Set(types.GetStringBytes(pollStr+"-"+option+"-"+idStr), value)
 
 	// Update vote count
 	k.SetVoteCount(ctx, count+1)
+
+	return count
 }
 
 // SetVote set a specific vote in the store
 func (k Keeper) SetVote(ctx sdk.Context, vote types.Vote) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
 	b := k.cdc.MustMarshalBinaryBare(&vote)
-	store.Set(types.KeyPrefix(types.VoteKey+vote.Id), b)
+	store.Set(GetVoteIDBytes(vote.Id), b)
+
+	// TODO: delete old option key
+	idStr := strconv.FormatUint(vote.Id, 10)
+	pollStr := strconv.FormatUint(vote.Poll, 10)
+	groupStr := strconv.FormatUint(k.GetPoll(ctx, vote.Poll).Group, 10)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteGroupKey)).Set(types.GetStringBytes(groupStr+"-"+pollStr+"-"+idStr), b)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteUserKey)).Set(types.GetStringBytes(vote.Creator+"-"+pollStr+"-"+idStr), b)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteOptionKey)).Set(types.GetStringBytes(pollStr+"-"+vote.Option+"-"+idStr), b)
 }
 
 // GetVote returns a vote from its id
-func (k Keeper) GetVote(ctx sdk.Context, key string) types.Vote {
+func (k Keeper) GetVote(ctx sdk.Context, id uint64) types.Vote {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
 	var vote types.Vote
-	k.cdc.MustUnmarshalBinaryBare(store.Get(types.KeyPrefix(types.VoteKey+key)), &vote)
+	k.cdc.MustUnmarshalBinaryBare(store.Get(GetVoteIDBytes(id)), &vote)
 	return vote
 }
 
-// HasVote checks if the vote exists
-func (k Keeper) HasVote(ctx sdk.Context, id string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
-	return store.Has(types.KeyPrefix(types.VoteKey + id))
+// UserVoted checks if user already voted on that poll
+func (k Keeper) UserVoted(ctx sdk.Context, user string, poll uint64) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteUserKey))
+	pollStr := strconv.FormatUint(poll, 10)
+	return store.Has(types.GetStringBytes(user + "-" + pollStr + "-"))
 }
 
-// GetVoteAccount returns the creator of the vote
-func (k Keeper) GetVoteAccount(ctx sdk.Context, key string) string {
-	return k.GetVote(ctx, key).Account
+// HasVote checks if the vote exists in the store
+func (k Keeper) HasVote(ctx sdk.Context, id uint64) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
+	return store.Has(GetVoteIDBytes(id))
 }
 
 // GetVoteOwner returns the creator of the vote
-func (k Keeper) GetVoteOwner(ctx sdk.Context, key string) string {
-	return k.GetAccountOwner(ctx, k.GetVoteAccount(ctx, key))
+func (k Keeper) GetVoteOwner(ctx sdk.Context, id uint64) string {
+	return k.GetVote(ctx, id).Creator
 }
 
-// DeleteVote deletes a vote
-func (k Keeper) DeleteVote(ctx sdk.Context, key string) {
+// RemoveVote removes a vote from the store
+func (k Keeper) RemoveVote(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
-	store.Delete(types.KeyPrefix(types.VoteKey + key))
+	store.Delete(GetVoteIDBytes(id))
 }
 
 // GetAllVote returns all vote
-func (k Keeper) GetAllVote(ctx sdk.Context) (msgs []types.Vote) {
+func (k Keeper) GetAllVote(ctx sdk.Context) (list []types.Vote) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.VoteKey))
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var msg types.Vote
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
-		msgs = append(msgs, msg)
+		var val types.Vote
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		list = append(list, val)
 	}
 
 	return
 }
 
-// GetAllPollVote returns votes in a poll
-func (k Keeper) GetAllPollVote(ctx sdk.Context, poll string) (msgs []types.Vote) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VoteKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.VoteKey+poll))
-
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var msg types.Vote
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
-		msgs = append(msgs, msg)
-	}
-
-	return
+// GetVoteIDBytes returns the byte representation of the ID
+func GetVoteIDBytes(id uint64) []byte {
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, id)
+	return bz
 }
 
-// GetAllAccountVote returns votes in an account
-func (k Keeper) GetAllAccountVote(ctx sdk.Context, account string) (msgs []types.Vote) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.VotePtrKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.VotePtrKey+account))
-
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var ptr types.VotePtr
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &ptr)
-		msg := k.GetVote(ctx, ptr.Id)
-		msgs = append(msgs, msg)
-	}
-
-	return
+// GetVoteIDFromBytes returns ID in uint64 format from a byte array
+func GetVoteIDFromBytes(bz []byte) uint64 {
+	return binary.BigEndian.Uint64(bz)
 }

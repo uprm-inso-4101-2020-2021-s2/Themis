@@ -1,6 +1,8 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // DefaultIndex is the default capability global index
 const DefaultIndex uint64 = 1
@@ -11,8 +13,8 @@ func DefaultGenesis() *GenesisState {
 		// this line is used by starport scaffolding # genesis/types/default
 		VoteList:    []*Vote{},
 		PollList:    []*Poll{},
-		AccountList: []*Account{},
 		GroupList:   []*Group{},
+		AccountList: []*Account{},
 	}
 }
 
@@ -21,7 +23,7 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 	// this line is used by starport scaffolding # genesis/types/validate
 	// Check for duplicated ID in vote
-	voteIdMap := make(map[string]bool)
+	voteIdMap := make(map[uint64]bool)
 
 	for _, elem := range gs.VoteList {
 		if _, ok := voteIdMap[elem.Id]; ok {
@@ -30,7 +32,7 @@ func (gs GenesisState) Validate() error {
 		voteIdMap[elem.Id] = true
 	}
 	// Check for duplicated ID in poll
-	pollIdMap := make(map[string]bool)
+	pollIdMap := make(map[uint64]bool)
 
 	for _, elem := range gs.PollList {
 		if _, ok := pollIdMap[elem.Id]; ok {
@@ -38,23 +40,23 @@ func (gs GenesisState) Validate() error {
 		}
 		pollIdMap[elem.Id] = true
 	}
-	// Check for duplicated ID in account
-	accountIdMap := make(map[string]bool)
-
-	for _, elem := range gs.AccountList {
-		if _, ok := accountIdMap[elem.Id]; ok {
-			return fmt.Errorf("duplicated id for account")
-		}
-		accountIdMap[elem.Id] = true
-	}
 	// Check for duplicated ID in group
-	groupIdMap := make(map[string]bool)
+	groupIdMap := make(map[uint64]bool)
 
 	for _, elem := range gs.GroupList {
 		if _, ok := groupIdMap[elem.Id]; ok {
 			return fmt.Errorf("duplicated id for group")
 		}
 		groupIdMap[elem.Id] = true
+	}
+	// Check for duplicated ID in account
+	accountIdMap := make(map[uint64]bool)
+
+	for _, elem := range gs.AccountList {
+		if _, ok := accountIdMap[elem.Id]; ok {
+			return fmt.Errorf("duplicated id for account")
+		}
+		accountIdMap[elem.Id] = true
 	}
 
 	return nil

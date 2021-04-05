@@ -6,18 +6,7 @@ option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/type
 import "gogoproto/gogo.proto";
 
 message Group {
-  string creator = 1;
-  string id = 2;
-  string name = 3; 
-}
-
-message MsgCreateGroup {
-  string creator = 1;
-  string name = 2; 
-}
-
-message MsgSetGroupName {
-  string creator = 1;
-  string id = 2;
+  string owner = 1;
+  uint64 id = 2;
   string name = 3;
 }

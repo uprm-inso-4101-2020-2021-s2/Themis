@@ -23,36 +23,6 @@ func listVoteHandler(clientCtx client.Context) http.HandlerFunc {
 	}
 }
 
-func listUserVoteHandler(clientCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		user := mux.Vars(r)["user"]
-
-		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/list-user-vote/%s", types.QuerierRoute, user), nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, res)
-	}
-}
-
-func listPollVoteHandler(clientCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		poll := mux.Vars(r)["poll"]
-
-		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/list-poll-vote/%s", types.QuerierRoute, poll), nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, res)
-	}
-}
-
 func getVoteHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]

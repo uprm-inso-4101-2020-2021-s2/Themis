@@ -6,19 +6,8 @@ option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/type
 import "gogoproto/gogo.proto";
 
 message Account {
-  string user = 1;
-  string id = 2;
-  string group = 3; 
-  int64  vouchers = 4;
-}
-
-message AccountPTR {
-  string id = 1;
-}
-
-message MsgAddAccountVouchers {
-  string groupOwner = 1;
-  string user = 2;
-  string group = 3;
-  int64  vouchers = 4;
+  string creator = 1;
+  uint64 id = 2;
+  string name = 3;
+  map<uint64, uint64> groups = 4;
 }
