@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/binary"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
@@ -8,7 +9,7 @@ import (
 )
 
 // GetPollCount get the total number of poll
-func (k Keeper) GetPollCount(ctx sdk.Context) int64 {
+func (k Keeper) GetPollCount(ctx sdk.Context) uint64 {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollCountKey))
 	byteKey := types.KeyPrefix(types.PollCountKey)
 	bz := store.Get(byteKey)
@@ -19,9 +20,9 @@ func (k Keeper) GetPollCount(ctx sdk.Context) int64 {
 	}
 
 	// Parse bytes
-	count, err := strconv.ParseInt(string(bz), 10, 64)
+	count, err := strconv.ParseUint(string(bz), 10, 64)
 	if err != nil {
-		// Panic because the count should be always formattable to int64
+		// Panic because the count should be always formattable to iint64
 		panic("cannot decode count")
 	}
 
@@ -29,124 +30,143 @@ func (k Keeper) GetPollCount(ctx sdk.Context) int64 {
 }
 
 // SetPollCount set the total number of poll
-func (k Keeper) SetPollCount(ctx sdk.Context, count int64) {
+func (k Keeper) SetPollCount(ctx sdk.Context, count uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollCountKey))
 	byteKey := types.KeyPrefix(types.PollCountKey)
-	bz := []byte(strconv.FormatInt(count, 10))
+	bz := []byte(strconv.FormatUint(count, 10))
 	store.Set(byteKey, bz)
 }
 
-// CreatePoll creates a poll with a new id and update the count
-func (k Keeper) CreatePoll(ctx sdk.Context, msg types.MsgCreatePoll) {
+// AppendPoll appends a poll in the store with a new id and update the count
+func (k Keeper) AppendPoll(
+	ctx sdk.Context,
+	creator string,
+	name string,
+	group uint64,
+	votes []string,
+	description string,
+	deadline uint64,
+) uint64 {
+	votesMap := make(map[string]uint64)
+
+	for _, vote := range votes {
+		votesMap[vote] = 0
+	}
+
 	// Create the poll
 	count := k.GetPollCount(ctx)
 	var poll = types.Poll{
-		Id:          k.NewKey(msg.Group, strconv.FormatInt(count, 10)),
-		Group:       msg.Group,
-		Title:       msg.Title,
-		Description: msg.Description,
-		Options:     msg.Options,
-		Deadline:    msg.Deadline,
+		Creator:     creator,
+		Id:          count,
+		Name:        name,
+		Group:       group,
+		Votes:       votesMap,
+		Description: description,
+		Deadline:    deadline,
 	}
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollKey))
-	key := types.KeyPrefix(types.PollKey + poll.Id)
 	value := k.cdc.MustMarshalBinaryBare(&poll)
-	store.Set(key, value)
+	store.Set(GetPollIDBytes(poll.Id), value)
+
+	// Store by name
+	// TODO: add a key to sort by deadline
+	countStr := strconv.FormatUint(count, 10)
+	groupStr := strconv.FormatUint(group, 10)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollNameKey)).Set(types.GetStringBytes(name+"-"+countStr), value)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollGroupKey)).Set(types.GetStringBytes(groupStr+"-"+name+"-"+countStr), value)
 
 	// Update poll count
 	k.SetPollCount(ctx, count+1)
+
+	return count
 }
 
 // SetPoll set a specific poll in the store
 func (k Keeper) SetPoll(ctx sdk.Context, poll types.Poll) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollKey))
 	b := k.cdc.MustMarshalBinaryBare(&poll)
-	store.Set(types.KeyPrefix(types.PollKey+poll.Id), b)
+	store.Set(GetPollIDBytes(poll.Id), b)
+
+	idStr := strconv.FormatUint(poll.Id, 10)
+	groupStr := strconv.FormatUint(poll.Group, 10)
+	// Extra account key stores
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollNameKey)).Set(types.GetStringBytes(poll.Name+"-"+idStr), b)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollGroupKey)).Set(types.GetStringBytes(groupStr+"-"+poll.Name+"-"+idStr), b)
 }
 
-// ExtendPollDeadline extends the poll's deadline
-func (k Keeper) ExtendPollDeadline(ctx sdk.Context, id string, deadline int64) {
+// AddPollVote sums a vote to the poll keyval
+func (k Keeper) AddPollVote(ctx sdk.Context, id uint64, vote string) {
 	poll := k.GetPoll(ctx, id)
-	poll.Deadline = deadline
+	poll.Votes[vote]++
 	k.SetPoll(ctx, poll)
 }
 
-// SetPollDescription sets the poll's description
-func (k Keeper) SetPollDescription(ctx sdk.Context, id string, desc string) {
+// RemovePollVote removes one vote to the pollkeyval
+func (k Keeper) RemovePollVote(ctx sdk.Context, id uint64, vote string) {
 	poll := k.GetPoll(ctx, id)
-	poll.Description = desc
+	poll.Votes[vote]--
 	k.SetPoll(ctx, poll)
+}
+
+// PollVoteExists checks if vote exists
+func (k Keeper) PollVoteExists(ctx sdk.Context, id uint64, vote string) bool {
+	poll := k.GetPoll(ctx, id)
+	if _, ok := poll.Votes[vote]; ok {
+		return true
+	}
+	return false
 }
 
 // GetPoll returns a poll from its id
-func (k Keeper) GetPoll(ctx sdk.Context, key string) types.Poll {
+func (k Keeper) GetPoll(ctx sdk.Context, id uint64) types.Poll {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollKey))
 	var poll types.Poll
-	k.cdc.MustUnmarshalBinaryBare(store.Get(types.KeyPrefix(types.PollKey+key)), &poll)
+	k.cdc.MustUnmarshalBinaryBare(store.Get(GetPollIDBytes(id)), &poll)
 	return poll
 }
 
-// HasPoll checks if the poll exists
-func (k Keeper) HasPoll(ctx sdk.Context, id string) bool {
+// HasPoll checks if the poll exists in the store
+func (k Keeper) HasPoll(ctx sdk.Context, id uint64) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollKey))
-	return store.Has(types.KeyPrefix(types.PollKey + id))
+	return store.Has(GetPollIDBytes(id))
 }
 
 // GetPollOwner returns the creator of the poll
-func (k Keeper) GetPollOwner(ctx sdk.Context, key string) string {
-	return k.GetGroupOwner(ctx, k.GetPollGroup(ctx, key))
+func (k Keeper) GetPollOwner(ctx sdk.Context, id uint64) string {
+	return k.GetPoll(ctx, id).Creator
 }
 
-// GetPollGroup returns the group the poll belongs to
-func (k Keeper) GetPollGroup(ctx sdk.Context, key string) string {
-	return k.GetPoll(ctx, key).Group
-}
-
-//GetPollOptions return the options for the poll
-func (k Keeper) GetPollOptions(ctx sdk.Context, key string) []string {
-	return k.GetPoll(ctx, key).Options
-}
-
-//GetPollDeadline return the deadline for the poll
-func (k Keeper) GetPollDeadline(ctx sdk.Context, key string) int64 {
-	return k.GetPoll(ctx, key).Deadline
-}
-
-// DeletePoll deletes a poll
-func (k Keeper) DeletePoll(ctx sdk.Context, key string) {
+// RemovePoll removes a poll from the store
+func (k Keeper) RemovePoll(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollKey))
-	store.Delete(types.KeyPrefix(types.PollKey + key))
+	store.Delete(GetPollIDBytes(id))
 }
 
 // GetAllPoll returns all poll
-func (k Keeper) GetAllPoll(ctx sdk.Context) (msgs []types.Poll) {
+func (k Keeper) GetAllPoll(ctx sdk.Context) (list []types.Poll) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.PollKey))
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var msg types.Poll
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
-		msgs = append(msgs, msg)
+		var val types.Poll
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		list = append(list, val)
 	}
 
 	return
 }
 
-// GetAllPoll returns all poll
-func (k Keeper) GetAllGroupPoll(ctx sdk.Context, group string) (msgs []types.Poll) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PollKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.PollKey+group))
+// GetPollIDBytes returns the byte representation of the ID
+func GetPollIDBytes(id uint64) []byte {
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, id)
+	return bz
+}
 
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var msg types.Poll
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
-		msgs = append(msgs, msg)
-	}
-
-	return
+// GetPollIDFromBytes returns ID in uint64 format from a byte array
+func GetPollIDFromBytes(bz []byte) uint64 {
+	return binary.BigEndian.Uint64(bz)
 }

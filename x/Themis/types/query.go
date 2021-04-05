@@ -1,27 +1,21 @@
 package types
 
 const (
-	QueryGetGroup     = "get-group"
-	QuerySetGroupName = "set-group-name"
-	QueryListGroup    = "list-group"
+	QueryGetAccount  = "get-account"
+	QueryListAccount = "list-account"
 )
 
 const (
-	QueryGetAccount       = "get-account"
-	QueryListAccount      = "list-account"
-	QueryListUserAccount  = "list-user-account"
-	QueryListGroupAccount = "list-group-account"
+	QueryGetGroup  = "get-group"
+	QueryListGroup = "list-group"
 )
 
 const (
-	QueryGetPoll       = "get-poll"
-	QueryListPoll      = "list-poll"
-	QueryListGroupPoll = "list-group-poll"
+	QueryGetPoll  = "get-poll"
+	QueryListPoll = "list-poll"
 )
 
 const (
-	QueryGetVote      = "get-vote"
-	QueryListVote     = "list-vote"
-	QueryListUserVote = "list-user-vote"
-	QueryListPollVote = "list-poll-vote"
+	QueryGetVote  = "get-vote"
+	QueryListVote = "list-vote"
 )

@@ -8,20 +8,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
-
-// Used to not have an error if strconv is unused
-var _ = strconv.Itoa(42)
 
 type createPollRequest struct {
 	BaseReq     rest.BaseReq `json:"base_req"`
 	Creator     string       `json:"creator"`
+	Name        string       `json:"name"`
 	Group       string       `json:"group"`
-	Title       string       `json:"title"`
+	Votes       string       `json:"votes"`
 	Description string       `json:"description"`
-	Options     []string     `json:"options"`
-	Deadline    int64        `json:"deadline"`
 }
 
 func createPollHandler(clientCtx client.Context) http.HandlerFunc {
@@ -43,39 +40,43 @@ func createPollHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
+		parsedName := req.Name
+
 		parsedGroup := req.Group
 
-		parsedTitle := req.Title
+		parsedVotes := req.Votes
 
 		parsedDescription := req.Description
-
-		parsedOptions := req.Options
-
-		parsedDeadline := req.Deadline
 
 		msg := types.NewMsgCreatePoll(
 			req.Creator,
+			parsedName,
 			parsedGroup,
-			parsedTitle,
+			parsedVotes,
 			parsedDescription,
-			parsedOptions,
-			parsedDeadline,
 		)
 
 		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
 	}
 }
 
-type setPollDescRequest struct {
+type updatePollRequest struct {
 	BaseReq     rest.BaseReq `json:"base_req"`
 	Creator     string       `json:"creator"`
-	Id          string       `json:"id"`
+	Name        string       `json:"name"`
+	Group       string       `json:"group"`
+	Votes       string       `json:"votes"`
 	Description string       `json:"description"`
 }
 
-func setPollDescHandler(clientCtx client.Context) http.HandlerFunc {
+func updatePollHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req setPollDescRequest
+		id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+		if err != nil {
+			return
+		}
+
+		var req updatePollRequest
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
@@ -86,19 +87,26 @@ func setPollDescHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		_, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err = sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		parsedId := req.Id
+		parsedName := req.Name
+
+		parsedGroup := req.Group
+
+		parsedVotes := req.Votes
 
 		parsedDescription := req.Description
 
-		msg := types.NewMsgSetPollDesc(
+		msg := types.NewMsgUpdatePoll(
 			req.Creator,
-			parsedId,
+			id,
+			parsedName,
+			parsedGroup,
+			parsedVotes,
 			parsedDescription,
 		)
 
@@ -106,16 +114,19 @@ func setPollDescHandler(clientCtx client.Context) http.HandlerFunc {
 	}
 }
 
-type extendPollDeadlineRequest struct {
-	BaseReq  rest.BaseReq `json:"base_req"`
-	Creator  string       `json:"creator"`
-	Id       string       `json:"id"`
-	Deadline int64        `json:"deadline"`
+type deletePollRequest struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Creator string       `json:"creator"`
 }
 
-func extendPollDeadlineHandler(clientCtx client.Context) http.HandlerFunc {
+func deletePollHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req extendPollDeadlineRequest
+		id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+		if err != nil {
+			return
+		}
+
+		var req deletePollRequest
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
@@ -126,20 +137,15 @@ func extendPollDeadlineHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		_, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err = sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		parsedId := req.Id
-
-		parsedDate := req.Deadline
-
-		msg := types.NewMsgExtendPollDeadline(
+		msg := types.NewMsgDeletePoll(
 			req.Creator,
-			parsedId,
-			parsedDate,
+			id,
 		)
 
 		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/binary"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
@@ -8,7 +9,7 @@ import (
 )
 
 // GetAccountCount get the total number of account
-func (k Keeper) GetAccountCount(ctx sdk.Context) int64 {
+func (k Keeper) GetAccountCount(ctx sdk.Context) uint64 {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountCountKey))
 	byteKey := types.KeyPrefix(types.AccountCountKey)
 	bz := store.Get(byteKey)
@@ -19,9 +20,9 @@ func (k Keeper) GetAccountCount(ctx sdk.Context) int64 {
 	}
 
 	// Parse bytes
-	count, err := strconv.ParseInt(string(bz), 10, 64)
+	count, err := strconv.ParseUint(string(bz), 10, 64)
 	if err != nil {
-		// Panic because the count should be always formattable to int64
+		// Panic because the count should be always formattable to iint64
 		panic("cannot decode count")
 	}
 
@@ -29,148 +30,144 @@ func (k Keeper) GetAccountCount(ctx sdk.Context) int64 {
 }
 
 // SetAccountCount set the total number of account
-func (k Keeper) SetAccountCount(ctx sdk.Context, count int64) {
+func (k Keeper) SetAccountCount(ctx sdk.Context, count uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountCountKey))
 	byteKey := types.KeyPrefix(types.AccountCountKey)
-	bz := []byte(strconv.FormatInt(count, 10))
+	bz := []byte(strconv.FormatUint(count, 10))
 	store.Set(byteKey, bz)
 }
 
-// CreateAccount creates a account with a new id and update the count with a related pointer
-func (k Keeper) CreateAccount(ctx sdk.Context, msg types.MsgAddAccountVouchers) {
+// AppendAccount appends a account in the store with a new id and update the count
+func (k Keeper) AppendAccount(
+	ctx sdk.Context,
+	creator string,
+	name string,
+) uint64 {
 	// Create the account
+	groupsMap := make(map[uint64]uint64)
+
 	count := k.GetAccountCount(ctx)
 	var account = types.Account{
-		User:     msg.User,
-		Id:       k.NewKey(msg.User, msg.Group),
-		Group:    msg.Group,
-		Vouchers: msg.Vouchers,
-	}
-
-	var accountPtr = types.AccountPTR{
-		Id: account.Id,
+		Creator: creator,
+		Id:      count,
+		Name:    name,
+		Groups:  groupsMap,
 	}
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	storePtr := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPtrKey))
-	key := types.KeyPrefix(types.AccountKey + account.Id)
-	keyPtr := types.KeyPrefix(types.AccountPtrKey + k.NewKey(msg.Group, msg.User))
 	value := k.cdc.MustMarshalBinaryBare(&account)
-	valuePtr := k.cdc.MustMarshalBinaryBare(&accountPtr)
-	store.Set(key, value)
-	storePtr.Set(keyPtr, valuePtr)
+	store.Set(GetAccountIDBytes(account.Id), value)
+
+	// Store by name
+	countStr := strconv.FormatUint(count, 10)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountNameKey)).Set(types.GetStringBytes(name+"-"+countStr), value)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountAddrKey)).Set(types.GetStringBytes(creator+"-"+countStr), value)
 
 	// Update account count
 	k.SetAccountCount(ctx, count+1)
-}
 
-// SetAccountVoucher Edits the account vouchers
-func (k Keeper) SetAccountVoucher(ctx sdk.Context, key string, qty int64) {
-	account := k.GetAccount(ctx, key)
-	account.Vouchers += qty
-	k.SetAccount(ctx, account)
+	return count
 }
 
 // SetAccount set a specific account in the store
 func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
 	b := k.cdc.MustMarshalBinaryBare(&account)
-	store.Set(types.KeyPrefix(types.AccountKey+account.Id), b)
+	store.Set(GetAccountIDBytes(account.Id), b)
+
+	idStr := strconv.FormatUint(account.Id, 10)
+	// Extra account key stores
+	// TODO: delete old Name and Addr entry
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountNameKey)).Set(types.GetStringBytes(account.Name+"-"+idStr), b)
+	prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountAddrKey)).Set(types.GetStringBytes(account.Creator+"-"+idStr), b)
+}
+
+// ChangeAccountName changes the account's name
+func (k Keeper) ChangeAccountName(ctx sdk.Context, id uint64, name string) {
+	acc := k.GetAccount(ctx, id)
+	acc.Name = name
+	k.SetAccount(ctx, acc)
+}
+
+// AddAccountGroup adds another group to the account
+func (k Keeper) AddAccountGroup(ctx sdk.Context, id uint64, group uint64, date uint64) {
+	acc := k.GetAccount(ctx, id)
+	acc.Groups[group] = date
+	k.SetAccount(ctx, acc)
+}
+
+// AccountInGroup checks if account already in group
+func (k Keeper) AccountInGroup(ctx sdk.Context, id uint64, group uint64) bool {
+	acc := k.GetAccount(ctx, id)
+	if _, ok := acc.Groups[group]; ok {
+		return true
+	}
+	return false
+}
+
+// GetAccountId gets account id from address
+func (k Keeper) GetAccountId(ctx sdk.Context, addr string) uint64 {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountAddrKey))
+	var account types.Account
+	k.cdc.MustUnmarshalBinaryBare(store.Get(types.GetStringBytes(addr)), &account)
+	return account.Id
 }
 
 // GetAccount returns a account from its id
-func (k Keeper) GetAccount(ctx sdk.Context, key string) types.Account {
+func (k Keeper) GetAccount(ctx sdk.Context, id uint64) types.Account {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
 	var account types.Account
-	k.cdc.MustUnmarshalBinaryBare(store.Get(types.KeyPrefix(types.AccountKey+key)), &account)
+	k.cdc.MustUnmarshalBinaryBare(store.Get(GetAccountIDBytes(id)), &account)
 	return account
 }
 
-// GetAccountId returns account ID from its user and group
-func (k Keeper) GetAccountId(ctx sdk.Context, user string, group string) string {
-	return k.GetAccount(ctx, k.NewKey(user, group)).Id
+// HasAccount checks if the account exists in the store
+func (k Keeper) HasAccount(ctx sdk.Context, id uint64) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
+	return store.Has(GetAccountIDBytes(id))
 }
 
-// HasAccount checks if the account exists
-func (k Keeper) HasAccount(ctx sdk.Context, id string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	return store.Has(types.KeyPrefix(types.AccountKey + id))
-}
-
-// AccountExistsInGroup checks if the account exists in group
-func (k Keeper) AccountExistsInGroup(ctx sdk.Context, user string, group string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	return store.Has(types.KeyPrefix(types.AccountKey + k.NewKey(user, group)))
+// HasAccountAddr checks if the account exists in the store
+func (k Keeper) HasAccountAddr(ctx sdk.Context, addr string) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountNameKey))
+	return store.Has(types.GetStringBytes(addr))
 }
 
 // GetAccountOwner returns the creator of the account
-func (k Keeper) GetAccountOwner(ctx sdk.Context, key string) string {
-	return k.GetAccount(ctx, key).User
+func (k Keeper) GetAccountOwner(ctx sdk.Context, id uint64) string {
+	return k.GetAccount(ctx, id).Creator
 }
 
-// GetAccountVouchers returns the total vouchers remaining
-func (k Keeper) GetAccountVouchers(ctx sdk.Context, key string) int64 {
-	return k.GetAccount(ctx, key).Vouchers
-}
-
-// EditAccountVouchers adds the given amount to the vouchers
-func (k Keeper) EditAccountVouchers(ctx sdk.Context, key string, v int64) {
-	account := k.GetAccount(ctx, key)
-	account.Vouchers += v
-	k.SetAccount(ctx, account)
-}
-
-// DeleteAccount deletes a account
-func (k Keeper) DeleteAccount(ctx sdk.Context, key string) {
+// RemoveAccount removes a account from the store
+func (k Keeper) RemoveAccount(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	store.Delete(types.KeyPrefix(types.AccountKey + key))
+	store.Delete(GetAccountIDBytes(id))
 }
 
 // GetAllAccount returns all account
-func (k Keeper) GetAllAccount(ctx sdk.Context) (msgs []types.Account) {
+func (k Keeper) GetAllAccount(ctx sdk.Context) (list []types.Account) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountKey))
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var msg types.Account
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
-		msgs = append(msgs, msg)
+		var val types.Account
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		list = append(list, val)
 	}
 
 	return
 }
 
-// GetAllGroupAccount returns all account
-func (k Keeper) GetAllGroupAccount(ctx sdk.Context, group string) (msgs []types.Account) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPtrKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountPtrKey+group))
-
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var ptr types.AccountPTR
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &ptr)
-		msg := k.GetAccount(ctx, ptr.Id)
-		msgs = append(msgs, msg)
-	}
-
-	return
+// GetAccountIDBytes returns the byte representation of the ID
+func GetAccountIDBytes(id uint64) []byte {
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, id)
+	return bz
 }
 
-// GetAllUserAccount returns all account
-func (k Keeper) GetAllUserAccount(ctx sdk.Context, user string) (msgs []types.Account) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountKey+user))
-
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var msg types.Account
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
-		msgs = append(msgs, msg)
-	}
-
-	return
+// GetAccountIDFromBytes returns ID in uint64 format from a byte array
+func GetAccountIDFromBytes(bz []byte) uint64 {
+	return binary.BigEndian.Uint64(bz)
 }

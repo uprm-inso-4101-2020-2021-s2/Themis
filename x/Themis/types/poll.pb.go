@@ -24,12 +24,13 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Poll struct {
-	Id          string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Group       string   `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
-	Title       string   `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	Description string   `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Options     []string `protobuf:"bytes,5,rep,name=options,proto3" json:"options,omitempty"`
-	Deadline    int64    `protobuf:"varint,6,opt,name=deadline,proto3" json:"deadline,omitempty"`
+	Creator     string            `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	Id          uint64            `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
+	Name        string            `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Group       uint64            `protobuf:"varint,4,opt,name=group,proto3" json:"group,omitempty"`
+	Votes       map[string]uint64 `protobuf:"bytes,5,rep,name=votes,proto3" json:"votes,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
+	Description string            `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	Deadline    uint64            `protobuf:"varint,7,opt,name=deadline,proto3" json:"deadline,omitempty"`
 }
 
 func (m *Poll) Reset()         { *m = Poll{} }
@@ -65,25 +66,39 @@ func (m *Poll) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Poll proto.InternalMessageInfo
 
-func (m *Poll) GetId() string {
+func (m *Poll) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+func (m *Poll) GetId() uint64 {
 	if m != nil {
 		return m.Id
 	}
+	return 0
+}
+
+func (m *Poll) GetName() string {
+	if m != nil {
+		return m.Name
+	}
 	return ""
 }
 
-func (m *Poll) GetGroup() string {
+func (m *Poll) GetGroup() uint64 {
 	if m != nil {
 		return m.Group
 	}
-	return ""
+	return 0
 }
 
-func (m *Poll) GetTitle() string {
+func (m *Poll) GetVotes() map[string]uint64 {
 	if m != nil {
-		return m.Title
+		return m.Votes
 	}
-	return ""
+	return nil
 }
 
 func (m *Poll) GetDescription() string {
@@ -93,218 +108,7 @@ func (m *Poll) GetDescription() string {
 	return ""
 }
 
-func (m *Poll) GetOptions() []string {
-	if m != nil {
-		return m.Options
-	}
-	return nil
-}
-
-func (m *Poll) GetDeadline() int64 {
-	if m != nil {
-		return m.Deadline
-	}
-	return 0
-}
-
-type MsgCreatePoll struct {
-	Creator     string   `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	Group       string   `protobuf:"bytes,2,opt,name=group,proto3" json:"group,omitempty"`
-	Title       string   `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	Description string   `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Options     []string `protobuf:"bytes,5,rep,name=options,proto3" json:"options,omitempty"`
-	Deadline    int64    `protobuf:"varint,6,opt,name=deadline,proto3" json:"deadline,omitempty"`
-}
-
-func (m *MsgCreatePoll) Reset()         { *m = MsgCreatePoll{} }
-func (m *MsgCreatePoll) String() string { return proto.CompactTextString(m) }
-func (*MsgCreatePoll) ProtoMessage()    {}
-func (*MsgCreatePoll) Descriptor() ([]byte, []int) {
-	return fileDescriptor_9809cdc3832974ea, []int{1}
-}
-func (m *MsgCreatePoll) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgCreatePoll) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgCreatePoll.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgCreatePoll) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgCreatePoll.Merge(m, src)
-}
-func (m *MsgCreatePoll) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgCreatePoll) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgCreatePoll.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgCreatePoll proto.InternalMessageInfo
-
-func (m *MsgCreatePoll) GetCreator() string {
-	if m != nil {
-		return m.Creator
-	}
-	return ""
-}
-
-func (m *MsgCreatePoll) GetGroup() string {
-	if m != nil {
-		return m.Group
-	}
-	return ""
-}
-
-func (m *MsgCreatePoll) GetTitle() string {
-	if m != nil {
-		return m.Title
-	}
-	return ""
-}
-
-func (m *MsgCreatePoll) GetDescription() string {
-	if m != nil {
-		return m.Description
-	}
-	return ""
-}
-
-func (m *MsgCreatePoll) GetOptions() []string {
-	if m != nil {
-		return m.Options
-	}
-	return nil
-}
-
-func (m *MsgCreatePoll) GetDeadline() int64 {
-	if m != nil {
-		return m.Deadline
-	}
-	return 0
-}
-
-type MsgSetPollDesc struct {
-	Creator     string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	Id          string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-}
-
-func (m *MsgSetPollDesc) Reset()         { *m = MsgSetPollDesc{} }
-func (m *MsgSetPollDesc) String() string { return proto.CompactTextString(m) }
-func (*MsgSetPollDesc) ProtoMessage()    {}
-func (*MsgSetPollDesc) Descriptor() ([]byte, []int) {
-	return fileDescriptor_9809cdc3832974ea, []int{2}
-}
-func (m *MsgSetPollDesc) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgSetPollDesc) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgSetPollDesc.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgSetPollDesc) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSetPollDesc.Merge(m, src)
-}
-func (m *MsgSetPollDesc) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgSetPollDesc) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSetPollDesc.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgSetPollDesc proto.InternalMessageInfo
-
-func (m *MsgSetPollDesc) GetCreator() string {
-	if m != nil {
-		return m.Creator
-	}
-	return ""
-}
-
-func (m *MsgSetPollDesc) GetId() string {
-	if m != nil {
-		return m.Id
-	}
-	return ""
-}
-
-func (m *MsgSetPollDesc) GetDescription() string {
-	if m != nil {
-		return m.Description
-	}
-	return ""
-}
-
-type MsgExtendPollDeadline struct {
-	Creator  string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	Id       string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Deadline int64  `protobuf:"varint,3,opt,name=deadline,proto3" json:"deadline,omitempty"`
-}
-
-func (m *MsgExtendPollDeadline) Reset()         { *m = MsgExtendPollDeadline{} }
-func (m *MsgExtendPollDeadline) String() string { return proto.CompactTextString(m) }
-func (*MsgExtendPollDeadline) ProtoMessage()    {}
-func (*MsgExtendPollDeadline) Descriptor() ([]byte, []int) {
-	return fileDescriptor_9809cdc3832974ea, []int{3}
-}
-func (m *MsgExtendPollDeadline) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgExtendPollDeadline) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgExtendPollDeadline.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgExtendPollDeadline) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgExtendPollDeadline.Merge(m, src)
-}
-func (m *MsgExtendPollDeadline) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgExtendPollDeadline) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgExtendPollDeadline.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgExtendPollDeadline proto.InternalMessageInfo
-
-func (m *MsgExtendPollDeadline) GetCreator() string {
-	if m != nil {
-		return m.Creator
-	}
-	return ""
-}
-
-func (m *MsgExtendPollDeadline) GetId() string {
-	if m != nil {
-		return m.Id
-	}
-	return ""
-}
-
-func (m *MsgExtendPollDeadline) GetDeadline() int64 {
+func (m *Poll) GetDeadline() uint64 {
 	if m != nil {
 		return m.Deadline
 	}
@@ -313,37 +117,34 @@ func (m *MsgExtendPollDeadline) GetDeadline() int64 {
 
 func init() {
 	proto.RegisterType((*Poll)(nil), "uprminso410120202021s2.Themis.Themis.Poll")
-	proto.RegisterType((*MsgCreatePoll)(nil), "uprminso410120202021s2.Themis.Themis.MsgCreatePoll")
-	proto.RegisterType((*MsgSetPollDesc)(nil), "uprminso410120202021s2.Themis.Themis.MsgSetPollDesc")
-	proto.RegisterType((*MsgExtendPollDeadline)(nil), "uprminso410120202021s2.Themis.Themis.MsgExtendPollDeadline")
+	proto.RegisterMapType((map[string]uint64)(nil), "uprminso410120202021s2.Themis.Themis.Poll.VotesEntry")
 }
 
 func init() { proto.RegisterFile("Themis/poll.proto", fileDescriptor_9809cdc3832974ea) }
 
 var fileDescriptor_9809cdc3832974ea = []byte{
-	// 350 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x92, 0x4f, 0x4b, 0xc3, 0x30,
-	0x18, 0xc6, 0x97, 0x76, 0x7f, 0x5c, 0xc4, 0x81, 0x65, 0x42, 0xd8, 0xa1, 0x94, 0xe1, 0x61, 0x97,
-	0xae, 0xeb, 0xf4, 0xe8, 0xc9, 0x3f, 0xc7, 0x81, 0x4c, 0xf1, 0x20, 0x7a, 0xd8, 0xda, 0x90, 0x05,
-	0xba, 0xbe, 0x25, 0xc9, 0x60, 0x7e, 0x0b, 0xcf, 0x7e, 0x07, 0xbf, 0x87, 0xc7, 0x1d, 0x3d, 0xca,
-	0xf6, 0x45, 0x24, 0xc9, 0x36, 0xa6, 0x82, 0xe0, 0x4d, 0x0a, 0xcd, 0xfb, 0x3c, 0xc9, 0xcb, 0xfb,
-	0xe3, 0xe5, 0xc1, 0x87, 0xb7, 0x13, 0x3a, 0xe5, 0x32, 0x2a, 0x20, 0xcb, 0xba, 0x85, 0x00, 0x05,
-	0xde, 0xf1, 0xac, 0x10, 0x53, 0x9e, 0x4b, 0x38, 0x8d, 0x7b, 0x71, 0xbf, 0x67, 0xbe, 0x58, 0xf6,
-	0xbb, 0xf6, 0xe5, 0xfa, 0x68, 0x35, 0x19, 0x30, 0x30, 0x0d, 0x91, 0xae, 0x6c, 0x6f, 0xfb, 0x05,
-	0xe1, 0xf2, 0x35, 0x64, 0x99, 0xd7, 0xc0, 0x0e, 0x4f, 0x09, 0x0a, 0x50, 0xa7, 0x3e, 0x74, 0x78,
-	0xea, 0x35, 0x71, 0x85, 0x09, 0x98, 0x15, 0xc4, 0x31, 0x96, 0x15, 0xda, 0x55, 0x5c, 0x65, 0x94,
-	0xb8, 0xd6, 0x35, 0xc2, 0x0b, 0xf0, 0x7e, 0x4a, 0x65, 0x22, 0x78, 0xa1, 0x38, 0xe4, 0xa4, 0x6c,
-	0xee, 0x76, 0x2d, 0x8f, 0xe0, 0x1a, 0x98, 0x4a, 0x92, 0x4a, 0xe0, 0x76, 0xea, 0xc3, 0x8d, 0xf4,
-	0x5a, 0x78, 0x2f, 0xa5, 0xa3, 0x34, 0xe3, 0x39, 0x25, 0xd5, 0x00, 0x75, 0xdc, 0xe1, 0x56, 0xb7,
-	0x5f, 0x11, 0x3e, 0x18, 0x48, 0x76, 0x21, 0xe8, 0x48, 0x51, 0x43, 0x49, 0x70, 0x2d, 0xd1, 0x0a,
-	0xc4, 0x1a, 0x75, 0x23, 0xff, 0x05, 0xef, 0x03, 0x6e, 0x0c, 0x24, 0xbb, 0xa1, 0x4a, 0xb3, 0x5e,
-	0x52, 0x99, 0xfc, 0xc2, 0x6b, 0xf7, 0xed, 0x6c, 0xf7, 0xfd, 0x8d, 0xc9, 0xfd, 0xc1, 0xd4, 0x7e,
-	0xc4, 0x47, 0x03, 0xc9, 0xae, 0xe6, 0x8a, 0xe6, 0xa9, 0x1d, 0x60, 0xc7, 0xfe, 0x61, 0xc8, 0x2e,
-	0xbc, 0xfb, 0x15, 0xfe, 0xfc, 0xee, 0x6d, 0xe9, 0xa3, 0xc5, 0xd2, 0x47, 0x1f, 0x4b, 0x1f, 0x3d,
-	0xaf, 0xfc, 0xd2, 0x62, 0xe5, 0x97, 0xde, 0x57, 0x7e, 0xe9, 0xfe, 0x8c, 0x71, 0x35, 0x99, 0x8d,
-	0xbb, 0x09, 0x4c, 0x23, 0x1d, 0xb5, 0x50, 0x67, 0x2d, 0xd4, 0x61, 0x0b, 0x75, 0xd6, 0xf4, 0x2f,
-	0x0e, 0x65, 0x3f, 0x5a, 0x27, 0x73, 0xbe, 0x29, 0xd4, 0x53, 0x41, 0xe5, 0xb8, 0x6a, 0x82, 0x76,
-	0xf2, 0x19, 0x00, 0x00, 0xff, 0xff, 0x60, 0x8d, 0x3e, 0x7a, 0xb9, 0x02, 0x00, 0x00,
+	// 330 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x91, 0x41, 0x4b, 0xc3, 0x30,
+	0x14, 0xc7, 0x97, 0xae, 0xdb, 0x34, 0x03, 0xd1, 0xb0, 0x43, 0xd8, 0xa1, 0x14, 0xf1, 0xb0, 0x4b,
+	0xdb, 0xb5, 0x2a, 0x0c, 0xf1, 0x24, 0x78, 0xf2, 0x22, 0x43, 0x76, 0xf0, 0xd6, 0xad, 0xa1, 0x0b,
+	0xb6, 0x7d, 0x25, 0x49, 0x87, 0xfb, 0x16, 0x7e, 0x03, 0xbf, 0x8e, 0xc7, 0x1d, 0x3d, 0xca, 0xfa,
+	0x45, 0x24, 0x69, 0xa7, 0x1e, 0xa5, 0xd0, 0xfc, 0xff, 0xe1, 0xbd, 0x97, 0xff, 0x8f, 0x87, 0xcf,
+	0x9e, 0xd6, 0x2c, 0xe7, 0x32, 0x28, 0x21, 0xcb, 0xfc, 0x52, 0x80, 0x02, 0x72, 0x51, 0x95, 0x22,
+	0xe7, 0x85, 0x84, 0xab, 0x70, 0x1a, 0x46, 0x53, 0xf3, 0x85, 0x32, 0xf2, 0x9b, 0xca, 0xf6, 0x18,
+	0x8f, 0x52, 0x48, 0xc1, 0x34, 0x04, 0x5a, 0x35, 0xbd, 0xe7, 0xef, 0x16, 0xb6, 0x1f, 0x21, 0xcb,
+	0x08, 0xc5, 0x83, 0x95, 0x60, 0xb1, 0x02, 0x41, 0x91, 0x8b, 0x26, 0xc7, 0xf3, 0x83, 0x25, 0x27,
+	0xd8, 0xe2, 0x09, 0xb5, 0x5c, 0x34, 0xb1, 0xe7, 0x16, 0x4f, 0x08, 0xc1, 0x76, 0x11, 0xe7, 0x8c,
+	0x76, 0x4d, 0x99, 0xd1, 0x64, 0x84, 0x7b, 0xa9, 0x80, 0xaa, 0xa4, 0xb6, 0x29, 0x6b, 0x0c, 0x79,
+	0xc0, 0xbd, 0x0d, 0x28, 0x26, 0x69, 0xcf, 0xed, 0x4e, 0x86, 0xd1, 0xb5, 0xff, 0x9f, 0xa0, 0xbe,
+	0x8e, 0xe3, 0x2f, 0x74, 0xdf, 0x7d, 0xa1, 0xc4, 0x76, 0xde, 0xcc, 0x20, 0x2e, 0x1e, 0x26, 0x4c,
+	0xae, 0x04, 0x2f, 0x15, 0x87, 0x82, 0xf6, 0xcd, 0xeb, 0x7f, 0xaf, 0xc8, 0x18, 0x1f, 0x25, 0x2c,
+	0x4e, 0x32, 0x5e, 0x30, 0x3a, 0x30, 0x39, 0x7e, 0xfc, 0x78, 0x86, 0xf1, 0xef, 0x48, 0x72, 0x8a,
+	0xbb, 0x2f, 0x6c, 0xdb, 0x82, 0x6a, 0xa9, 0x01, 0x36, 0x71, 0x56, 0xb1, 0x96, 0xb3, 0x31, 0x37,
+	0xd6, 0x0c, 0xdd, 0x2d, 0x3e, 0xf6, 0x0e, 0xda, 0xed, 0x1d, 0xf4, 0xb5, 0x77, 0xd0, 0x5b, 0xed,
+	0x74, 0x76, 0xb5, 0xd3, 0xf9, 0xac, 0x9d, 0xce, 0xf3, 0x6d, 0xca, 0xd5, 0xba, 0x5a, 0xfa, 0x2b,
+	0xc8, 0x03, 0x4d, 0xe6, 0x69, 0x34, 0x4f, 0xb3, 0x79, 0x1a, 0x4d, 0xff, 0x42, 0x4f, 0x46, 0x41,
+	0xbb, 0xb1, 0xd7, 0x83, 0x50, 0xdb, 0x92, 0xc9, 0x65, 0xdf, 0x2c, 0xe0, 0xf2, 0x3b, 0x00, 0x00,
+	0xff, 0xff, 0x82, 0xbf, 0xb0, 0xb0, 0xd1, 0x01, 0x00, 0x00,
 }
 
 func (m *Poll) Marshal() (dAtA []byte, err error) {
@@ -369,188 +170,48 @@ func (m *Poll) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.Deadline != 0 {
 		i = encodeVarintPoll(dAtA, i, uint64(m.Deadline))
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x38
 	}
-	if len(m.Options) > 0 {
-		for iNdEx := len(m.Options) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Options[iNdEx])
-			copy(dAtA[i:], m.Options[iNdEx])
-			i = encodeVarintPoll(dAtA, i, uint64(len(m.Options[iNdEx])))
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintPoll(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.Votes) > 0 {
+		for k := range m.Votes {
+			v := m.Votes[k]
+			baseI := i
+			i = encodeVarintPoll(dAtA, i, uint64(v))
+			i--
+			dAtA[i] = 0x10
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintPoll(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintPoll(dAtA, i, uint64(baseI-i))
 			i--
 			dAtA[i] = 0x2a
 		}
 	}
-	if len(m.Description) > 0 {
-		i -= len(m.Description)
-		copy(dAtA[i:], m.Description)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Description)))
+	if m.Group != 0 {
+		i = encodeVarintPoll(dAtA, i, uint64(m.Group))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x20
 	}
-	if len(m.Title) > 0 {
-		i -= len(m.Title)
-		copy(dAtA[i:], m.Title)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Title)))
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintPoll(dAtA, i, uint64(len(m.Name)))
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.Group) > 0 {
-		i -= len(m.Group)
-		copy(dAtA[i:], m.Group)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Group)))
+	if m.Id != 0 {
+		i = encodeVarintPoll(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Id) > 0 {
-		i -= len(m.Id)
-		copy(dAtA[i:], m.Id)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Id)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgCreatePoll) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgCreatePoll) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgCreatePoll) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Deadline != 0 {
-		i = encodeVarintPoll(dAtA, i, uint64(m.Deadline))
-		i--
-		dAtA[i] = 0x30
-	}
-	if len(m.Options) > 0 {
-		for iNdEx := len(m.Options) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Options[iNdEx])
-			copy(dAtA[i:], m.Options[iNdEx])
-			i = encodeVarintPoll(dAtA, i, uint64(len(m.Options[iNdEx])))
-			i--
-			dAtA[i] = 0x2a
-		}
-	}
-	if len(m.Description) > 0 {
-		i -= len(m.Description)
-		copy(dAtA[i:], m.Description)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Description)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.Title) > 0 {
-		i -= len(m.Title)
-		copy(dAtA[i:], m.Title)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Title)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Group) > 0 {
-		i -= len(m.Group)
-		copy(dAtA[i:], m.Group)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Group)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Creator) > 0 {
-		i -= len(m.Creator)
-		copy(dAtA[i:], m.Creator)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Creator)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgSetPollDesc) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgSetPollDesc) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgSetPollDesc) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Description) > 0 {
-		i -= len(m.Description)
-		copy(dAtA[i:], m.Description)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Description)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Id) > 0 {
-		i -= len(m.Id)
-		copy(dAtA[i:], m.Id)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Id)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Creator) > 0 {
-		i -= len(m.Creator)
-		copy(dAtA[i:], m.Creator)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Creator)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgExtendPollDeadline) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgExtendPollDeadline) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgExtendPollDeadline) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Deadline != 0 {
-		i = encodeVarintPoll(dAtA, i, uint64(m.Deadline))
-		i--
-		dAtA[i] = 0x18
-	}
-	if len(m.Id) > 0 {
-		i -= len(m.Id)
-		copy(dAtA[i:], m.Id)
-		i = encodeVarintPoll(dAtA, i, uint64(len(m.Id)))
-		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x10
 	}
 	if len(m.Creator) > 0 {
 		i -= len(m.Creator)
@@ -579,100 +240,29 @@ func (m *Poll) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Id)
+	l = len(m.Creator)
 	if l > 0 {
 		n += 1 + l + sovPoll(uint64(l))
 	}
-	l = len(m.Group)
+	if m.Id != 0 {
+		n += 1 + sovPoll(uint64(m.Id))
+	}
+	l = len(m.Name)
 	if l > 0 {
 		n += 1 + l + sovPoll(uint64(l))
 	}
-	l = len(m.Title)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
+	if m.Group != 0 {
+		n += 1 + sovPoll(uint64(m.Group))
 	}
-	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	if len(m.Options) > 0 {
-		for _, s := range m.Options {
-			l = len(s)
-			n += 1 + l + sovPoll(uint64(l))
+	if len(m.Votes) > 0 {
+		for k, v := range m.Votes {
+			_ = k
+			_ = v
+			mapEntrySize := 1 + len(k) + sovPoll(uint64(len(k))) + 1 + sovPoll(uint64(v))
+			n += mapEntrySize + 1 + sovPoll(uint64(mapEntrySize))
 		}
 	}
-	if m.Deadline != 0 {
-		n += 1 + sovPoll(uint64(m.Deadline))
-	}
-	return n
-}
-
-func (m *MsgCreatePoll) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Creator)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	l = len(m.Group)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	l = len(m.Title)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
 	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	if len(m.Options) > 0 {
-		for _, s := range m.Options {
-			l = len(s)
-			n += 1 + l + sovPoll(uint64(l))
-		}
-	}
-	if m.Deadline != 0 {
-		n += 1 + sovPoll(uint64(m.Deadline))
-	}
-	return n
-}
-
-func (m *MsgSetPollDesc) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Creator)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	l = len(m.Id)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgExtendPollDeadline) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Creator)
-	if l > 0 {
-		n += 1 + l + sovPoll(uint64(l))
-	}
-	l = len(m.Id)
 	if l > 0 {
 		n += 1 + l + sovPoll(uint64(l))
 	}
@@ -719,7 +309,7 @@ func (m *Poll) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -747,13 +337,13 @@ func (m *Poll) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Id = string(dAtA[iNdEx:postIndex])
+			m.Creator = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Group", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
-			var stringLen uint64
+			m.Id = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowPoll
@@ -763,27 +353,14 @@ func (m *Poll) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.Id |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Group = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -811,178 +388,13 @@ func (m *Poll) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Title = string(dAtA[iNdEx:postIndex])
+			m.Name = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Description = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Options", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Options = append(m.Options, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 6:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Deadline", wireType)
-			}
-			m.Deadline = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Deadline |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipPoll(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgCreatePoll) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowPoll
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgCreatePoll: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgCreatePoll: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Creator = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Group", wireType)
 			}
-			var stringLen uint64
+			m.Group = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowPoll
@@ -992,93 +404,16 @@ func (m *MsgCreatePoll) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.Group |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Group = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Title = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Description = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Options", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Votes", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowPoll
@@ -1088,158 +423,106 @@ func (m *MsgCreatePoll) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthPoll
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthPoll
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Options = append(m.Options, string(dAtA[iNdEx:postIndex]))
+			if m.Votes == nil {
+				m.Votes = make(map[string]uint64)
+			}
+			var mapkey string
+			var mapvalue uint64
+			for iNdEx < postIndex {
+				entryPreIndex := iNdEx
+				var wire uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowPoll
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					wire |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				fieldNum := int32(wire >> 3)
+				if fieldNum == 1 {
+					var stringLenmapkey uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowPoll
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						stringLenmapkey |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					intStringLenmapkey := int(stringLenmapkey)
+					if intStringLenmapkey < 0 {
+						return ErrInvalidLengthPoll
+					}
+					postStringIndexmapkey := iNdEx + intStringLenmapkey
+					if postStringIndexmapkey < 0 {
+						return ErrInvalidLengthPoll
+					}
+					if postStringIndexmapkey > l {
+						return io.ErrUnexpectedEOF
+					}
+					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
+					iNdEx = postStringIndexmapkey
+				} else if fieldNum == 2 {
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowPoll
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						mapvalue |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+				} else {
+					iNdEx = entryPreIndex
+					skippy, err := skipPoll(dAtA[iNdEx:])
+					if err != nil {
+						return err
+					}
+					if (skippy < 0) || (iNdEx+skippy) < 0 {
+						return ErrInvalidLengthPoll
+					}
+					if (iNdEx + skippy) > postIndex {
+						return io.ErrUnexpectedEOF
+					}
+					iNdEx += skippy
+				}
+			}
+			m.Votes[mapkey] = mapvalue
 			iNdEx = postIndex
 		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Deadline", wireType)
-			}
-			m.Deadline = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Deadline |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipPoll(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgSetPollDesc) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowPoll
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetPollDesc: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetPollDesc: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Creator = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Id = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
 			}
@@ -1271,121 +554,7 @@ func (m *MsgSetPollDesc) Unmarshal(dAtA []byte) error {
 			}
 			m.Description = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipPoll(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgExtendPollDeadline) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowPoll
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgExtendPollDeadline: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgExtendPollDeadline: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Creator = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPoll
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPoll
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPoll
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Id = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
+		case 7:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Deadline", wireType)
 			}
@@ -1399,7 +568,7 @@ func (m *MsgExtendPollDeadline) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Deadline |= int64(b&0x7F) << shift
+				m.Deadline |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

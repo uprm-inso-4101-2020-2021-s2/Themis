@@ -23,36 +23,6 @@ func listAccountHandler(clientCtx client.Context) http.HandlerFunc {
 	}
 }
 
-func listGroupAccountsHandler(clientCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		group := mux.Vars(r)["group"]
-
-		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/list-group-account/%s", types.QuerierRoute, group), nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, res)
-	}
-}
-
-func listUserAccountsHandler(clientCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		user := mux.Vars(r)["user"]
-
-		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/list-user-account/%s", types.QuerierRoute, user), nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-			return
-		}
-
-		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, res)
-	}
-}
-
 func getAccountHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]

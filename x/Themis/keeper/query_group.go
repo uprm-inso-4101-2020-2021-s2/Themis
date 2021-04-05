@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"strconv"
 )
 
 func listGroup(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
@@ -17,7 +18,16 @@ func listGroup(ctx sdk.Context, keeper Keeper, legacyQuerierCdc *codec.LegacyAmi
 	return bz, nil
 }
 
-func getGroup(ctx sdk.Context, id string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func getGroup(ctx sdk.Context, key string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	id, err := strconv.ParseUint(key, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	if !keeper.HasGroup(ctx, id) {
+		return nil, sdkerrors.ErrKeyNotFound
+	}
+
 	msg := keeper.GetGroup(ctx, id)
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, msg)
