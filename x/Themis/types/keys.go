@@ -17,9 +17,10 @@ const (
 	MemStoreKey = "mem_capability"
 
 	// Special State variables
-	MaxNameSize = 20
-	MaxDescSize = 200
-	MaxOptions  = 20
+	MaxNameSize    = 20
+	MaxDescSize    = 200
+	MaxOptions     = 20
+	MaxOptionsSize = 40
 )
 
 func KeyPrefix(p string) []byte {

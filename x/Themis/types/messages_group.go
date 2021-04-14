@@ -46,6 +46,45 @@ func (msg *MsgCreateGroup) ValidateBasic() error {
 	return nil
 }
 
+var _ sdk.Msg = &MsgInviteToGroup{}
+
+func NewMsgInviteToGroup(group uint64, invited uint64, owner string) *MsgInviteToGroup {
+	return &MsgInviteToGroup{
+		Group:   group,
+		Invited: invited,
+		Owner:   owner,
+	}
+}
+
+func (msg *MsgInviteToGroup) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgInviteToGroup) Type() string {
+	return "InviteToGroup"
+}
+
+func (msg *MsgInviteToGroup) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgInviteToGroup) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgInviteToGroup) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+	return nil
+}
+
 var _ sdk.Msg = &MsgUpdateGroup{}
 
 func NewMsgUpdateGroup(id uint64, name string, owner string, newOwner string) *MsgUpdateGroup {

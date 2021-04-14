@@ -18,6 +18,7 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDeletePoll{}, "Themis/DeletePoll", nil)
 
 	cdc.RegisterConcrete(&MsgCreateGroup{}, "Themis/CreateGroup", nil)
+	cdc.RegisterConcrete(&MsgInviteToGroup{}, "Themis/InviteToGroup", nil)
 	cdc.RegisterConcrete(&MsgUpdateGroup{}, "Themis/UpdateGroup", nil)
 	cdc.RegisterConcrete(&MsgDeleteGroup{}, "Themis/DeleteGroup", nil)
 
@@ -41,6 +42,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	)
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateGroup{},
+		&MsgInviteToGroup{},
 		&MsgUpdateGroup{},
 		&MsgDeleteGroup{},
 	)

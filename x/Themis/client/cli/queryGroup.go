@@ -10,9 +10,30 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+// GetQueryGroupCmd returns the cli query commands for this module
+func GetQueryGroupCmd(queryRoute string) *cobra.Command {
+	// Group Themis queries under a subcommand
+	cmd := &cobra.Command{
+		Use:                        "group",
+		Short:                      "Manages group queries",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	// this line is used by starport scaffolding # 1
+
+	cmd.AddCommand(CmdListGroup())
+	cmd.AddCommand(CmdShowGroup())
+	cmd.AddCommand(CmdListGroupAddress())
+	cmd.AddCommand(CmdListGroupWithNames())
+
+	return cmd
+}
+
 func CmdListGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-group",
+		Use:   "list",
 		Short: "list all group",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -44,7 +65,7 @@ func CmdListGroup() *cobra.Command {
 
 func CmdShowGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-group [id]",
+		Use:   "show [id]",
 		Short: "shows a group",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -62,6 +83,74 @@ func CmdShowGroup() *cobra.Command {
 			}
 
 			res, err := queryClient.Group(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdListGroupAddress() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "address [addr]",
+		Short: "list all groups under that address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryGetGroupAddressRequest{
+				Addr:       args[0],
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.GroupAddress(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdListGroupWithNames() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "name [name]",
+		Short: "list all group under that name",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.QueryAllGroupWithNamesRequest{
+				Name:       args[0],
+				Pagination: pageReq,
+			}
+
+			res, err := queryClient.GroupWithNames(context.Background(), params)
 			if err != nil {
 				return err
 			}

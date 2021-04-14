@@ -10,9 +10,26 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+// GetPollCmd returns the commands for this module
+func GetPollCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "poll",
+		Short:                      "Manages poll txs",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdCreatePoll())
+	cmd.AddCommand(CmdUpdatePoll())
+	cmd.AddCommand(CmdDeletePoll())
+
+	return cmd
+}
+
 func CmdCreatePoll() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-poll [group] [name] [description] [deadline] [options...]",
+		Use:   "create [group] [name] [description] [deadline] [options...]",
 		Short: "Creates a new poll",
 		Args:  cobra.MinimumNArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -20,8 +37,8 @@ func CmdCreatePoll() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			argsName := string(args[1])
-			argsDescription := string(args[2])
+			argsName := args[1]
+			argsDescription := args[2]
 			argsDeadline, err := strconv.ParseUint(args[3], 10, 64)
 			if err != nil {
 				return err
@@ -49,7 +66,7 @@ func CmdCreatePoll() *cobra.Command {
 
 func CmdUpdatePoll() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-poll [id] [description] [deadline]",
+		Use:   "update [id] [description] [deadline]",
 		Short: "Update a poll",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -84,7 +101,7 @@ func CmdUpdatePoll() *cobra.Command {
 
 func CmdDeletePoll() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-poll [id] [name] [group] [votes] [description]",
+		Use:   "delete [id]",
 		Short: "Delete a poll by id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

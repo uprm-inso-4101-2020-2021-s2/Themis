@@ -15,6 +15,7 @@ service Msg {
   rpc UpdatePoll(MsgUpdatePoll) returns (MsgUpdatePollResponse);
   rpc DeletePoll(MsgDeletePoll) returns (MsgDeletePollResponse);
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
+  rpc InviteToGroup(MsgInviteToGroup) returns (MsgInviteToGroupResponse);
   rpc UpdateGroup(MsgUpdateGroup) returns (MsgUpdateGroupResponse);
   rpc DeleteGroup(MsgDeleteGroup) returns (MsgDeleteGroupResponse);
   rpc CreateAccount(MsgCreateAccount) returns (MsgCreateAccountResponse);
@@ -85,6 +86,14 @@ message MsgCreateGroup {
 message MsgCreateGroupResponse {
   uint64 id = 1;
 }
+
+message MsgInviteToGroup {
+  uint64 group = 1;
+  uint64 invited = 2;
+  string owner = 3;
+}
+
+message MsgInviteToGroupResponse { }
 
 message MsgUpdateGroup {
   uint64 id = 1;

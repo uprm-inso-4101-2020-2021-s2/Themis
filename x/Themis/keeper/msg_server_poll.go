@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/tendermint/types/time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -32,7 +33,9 @@ func (k msgServer) CreatePoll(goCtx context.Context, msg *types.MsgCreatePoll) (
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
 	}
 
-	//TODO: check that the deadline hasn't passed
+	if uint64(time.Now().UTC().Unix()) >= msg.Deadline {
+		return nil, sdkerrors.Wrap(types.ErrInvalidDate, "Deadline must not have passed")
+	}
 
 	return &types.MsgCreatePollResponse{
 		Id: id,
@@ -58,7 +61,11 @@ func (k msgServer) UpdatePoll(goCtx context.Context, msg *types.MsgUpdatePoll) (
 	if poll.Deadline > msg.Deadline {
 		return nil, sdkerrors.Wrap(types.ErrInvalidDate, fmt.Sprintf("Date %d is sooner than original posted date, deadlines can only be extended", msg.Deadline))
 	}
-	//TODO: check that the deadline hasn't passed
+
+	if poll.Deadline > msg.Deadline {
+		return nil, sdkerrors.Wrap(types.ErrInvalidDate, "New deadline cannot be before old deadline")
+	}
+
 	poll.Deadline = msg.Deadline
 
 	k.SetPoll(ctx, poll)
