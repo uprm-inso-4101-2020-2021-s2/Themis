@@ -14,16 +14,29 @@ option go_package = "github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/type
 // Query defines the gRPC querier service.
 service Query {
     // this line is used by starport scaffolding # 2
-	//TODO: Add query vote by group
-	//TODO: Add query vote by poll
-	//TODO: Add query vote by creator
-	//TODO: Add query vote by creator and poll
-	//TODO: Add query vote by poll and option
 	rpc Vote(QueryGetVoteRequest) returns (QueryGetVoteResponse) {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/{id}";
 	}
 	rpc VoteAll(QueryAllVoteRequest) returns (QueryAllVoteResponse) {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote";
+	}
+	rpc VoteWithGroup(QueryVoteWithGroup) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/group/{group}";
+	}
+	rpc VoteWithGroupAndPoll(QueryVoteWithGroupAndPoll) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/group/{group}/{poll}";
+	}
+	rpc VoteWithUser(QueryVoteWithUser) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/user/{user}";
+	}
+	rpc VoteWithUserAndPoll(QueryVoteWithUserAndPoll) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/user/{user}/{poll}";
+	}
+	rpc VoteWithPoll(QueryVoteWithPoll) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/poll/{poll}";
+	}
+	rpc VoteWithPollAndVote(QueryVoteWithPollAndVote) returns (QueryAllVoteResponse) {
+		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/vote/poll/{poll}/{vote}";
 	}
 
 	rpc Poll(QueryGetPollRequest) returns (QueryGetPollResponse) {
@@ -45,7 +58,7 @@ service Query {
 	rpc Group(QueryGetGroupRequest) returns (QueryGetGroupResponse) {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/group/{id}";
 	}
-	rpc GroupAddress(QueryGetGroupAddressRequest) returns (QueryGetGroupResponse) {
+	rpc GroupAddress(QueryGetGroupAddressRequest) returns (QueryAllGroupResponse) {
 		option (google.api.http).get = "/uprm-inso-4101-2020-2021-s2/Themis/Themis/group/address/{addr}";
 	}
 	rpc GroupAll(QueryAllGroupRequest) returns (QueryAllGroupResponse) {
@@ -81,6 +94,39 @@ message QueryGetVoteResponse {
 
 message QueryAllVoteRequest {
 	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryVoteWithGroup {
+	uint64 group = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryVoteWithGroupAndPoll {
+	uint64 group = 1;
+	uint64 poll = 2;
+	cosmos.base.query.v1beta1.PageRequest pagination = 3;
+}
+
+message QueryVoteWithUser {
+	string user = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryVoteWithUserAndPoll {
+	string user = 1;
+	uint64 poll = 2;
+	cosmos.base.query.v1beta1.PageRequest pagination = 3;
+}
+
+message QueryVoteWithPoll {
+	uint64 poll = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryVoteWithPollAndVote {
+	uint64 poll = 1;
+	string vote = 2;
+	cosmos.base.query.v1beta1.PageRequest pagination = 3;
 }
 
 message QueryAllVoteResponse {
@@ -125,6 +171,7 @@ message QueryGetGroupRequest {
 
 message QueryGetGroupAddressRequest {
 	string addr = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 message QueryGetGroupResponse {

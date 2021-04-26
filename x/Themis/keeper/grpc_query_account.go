@@ -91,15 +91,29 @@ func (k Keeper) AccountAddress(c context.Context, req *types.QueryGetAccountAddr
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var account types.Account
+	var accounts []*types.Account
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if !k.HasAccountAddr(ctx, req.Addr) {
-		return nil, sdkerrors.ErrKeyNotFound
+	//if !k.HasAccountAddr(ctx, req.Addr) {
+	//	return nil, sdkerrors.ErrKeyNotFound
+	//}
+
+	store := ctx.KVStore(k.storeKey)
+	accountStore := prefix.NewStore(store, types.KeyPrefix(types.AccountAddrKey))
+
+	_, err := types.PrefixPaginate(accountStore, types.KeyPrefix(req.Addr), nil, func(key []byte, value []byte) error {
+		var account types.Account
+		if err := k.cdc.UnmarshalBinaryBare(value, &account); err != nil {
+			return err
+		}
+
+		accounts = append(accounts, &account)
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountAddrKey))
-	k.cdc.MustUnmarshalBinaryBare(store.Get(types.GetStringBytes(req.Addr)), &account)
-
-	return &types.QueryGetAccountResponse{Account: &account}, nil
+	return &types.QueryGetAccountResponse{Account: accounts[0]}, nil
 }

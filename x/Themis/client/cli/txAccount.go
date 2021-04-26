@@ -10,20 +10,37 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+// GetAccountCmd returns the commands for this module
+func GetAccountCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "account",
+		Short:                      "Manages account txs",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdCreateAccount())
+	cmd.AddCommand(CmdUpdateAccount())
+	cmd.AddCommand(CmdDeleteAccount())
+
+	return cmd
+}
+
 func CmdCreateAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-account [name]",
+		Use:   "create [name]",
 		Short: "Creates a new account",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			argsName := string(args[0])
+			argsName := args[0]
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgCreateAccount(clientCtx.GetFromAddress().String(), string(argsName))
+			msg := types.NewMsgCreateAccount(clientCtx.GetFromAddress().String(), argsName)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -38,7 +55,7 @@ func CmdCreateAccount() *cobra.Command {
 
 func CmdUpdateAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-account [id] [name]",
+		Use:   "update [id] [name]",
 		Short: "Update a account",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -47,14 +64,14 @@ func CmdUpdateAccount() *cobra.Command {
 				return err
 			}
 
-			argsName := string(args[1])
+			argsName := args[1]
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgUpdateAccount(clientCtx.GetFromAddress().String(), id, string(argsName))
+			msg := types.NewMsgUpdateAccount(clientCtx.GetFromAddress().String(), id, argsName)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -69,7 +86,7 @@ func CmdUpdateAccount() *cobra.Command {
 
 func CmdDeleteAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-account [id] [name]",
+		Use:   "delete [id]",
 		Short: "Delete a account by id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

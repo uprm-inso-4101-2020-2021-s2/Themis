@@ -56,7 +56,11 @@ func (msg *MsgCreatePoll) ValidateBasic() error {
 	if msg.Deadline <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidDate, "Date must be UTC time (%s)", msg.Deadline)
 	}
-	//TODO: check that no identical vote strings are not passed in array, check that vote strings donot pass a size
+	for _, vote := range msg.Votes {
+		if len(vote) > MaxOptionsSize {
+			return sdkerrors.Wrapf(ErrInvalidVotes, "Votes cannot pass a fixed size (%s)", vote)
+		}
+	}
 	return nil
 }
 

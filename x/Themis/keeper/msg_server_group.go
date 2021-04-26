@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/tendermint/types/time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -18,9 +19,36 @@ func (k msgServer) CreateGroup(goCtx context.Context, msg *types.MsgCreateGroup)
 		msg.Owner,
 	)
 
+	var acc = k.GetAccountFromAddr(ctx, msg.Owner)
+
+	k.AddAccountGroup(ctx, acc.Id, id, uint64(time.Now().UTC().Unix()))
+
 	return &types.MsgCreateGroupResponse{
 		Id: id,
 	}, nil
+}
+
+func (k msgServer) InviteToGroup(goCtx context.Context, msg *types.MsgInviteToGroup) (*types.MsgInviteToGroupResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Checks that the element exists
+	if !k.HasGroup(ctx, msg.Group) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Group))
+	}
+
+	// Checks if the the msg sender is the same as the current owner
+	if msg.Owner != k.GetGroupOwner(ctx, msg.Group) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+	}
+
+	// Checks if the user is already in the group
+	if k.AccountInGroup(ctx, msg.Invited, uint64(time.Now().UTC().Unix())) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Account already in group")
+	}
+
+	k.AddAccountGroup(ctx, msg.Invited, msg.Group, uint64(time.Now().UTC().Unix()))
+
+	return &types.MsgInviteToGroupResponse{}, nil
 }
 
 func (k msgServer) UpdateGroup(goCtx context.Context, msg *types.MsgUpdateGroup) (*types.MsgUpdateGroupResponse, error) {

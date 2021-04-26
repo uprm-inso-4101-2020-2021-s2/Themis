@@ -80,7 +80,7 @@ func (k Keeper) PollsInGroup(c context.Context, req *types.QueryAllPollsInGroupR
 	store := ctx.KVStore(k.storeKey)
 	pollStore := prefix.NewStore(store, types.KeyPrefix(types.PollGroupKey))
 
-	pageRes, err := types.PrefixPaginate(pollStore, GetGroupIDBytes(req.Group), req.Pagination, func(key []byte, value []byte) error {
+	pageRes, err := types.PrefixPaginate(pollStore, types.KeyPrefix(strconv.FormatUint(req.Group, 10)), req.Pagination, func(key []byte, value []byte) error {
 		var poll types.Poll
 		if err := k.cdc.UnmarshalBinaryBare(value, &poll); err != nil {
 			return err

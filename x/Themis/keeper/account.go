@@ -92,7 +92,14 @@ func (k Keeper) ChangeAccountName(ctx sdk.Context, id uint64, name string) {
 // AddAccountGroup adds another group to the account
 func (k Keeper) AddAccountGroup(ctx sdk.Context, id uint64, group uint64, date uint64) {
 	acc := k.GetAccount(ctx, id)
-	acc.Groups[group] = date
+	//acc.Groups[group] = date
+	var g = acc.Groups
+	var n = make(map[uint64]uint64)
+	for k, v := range g {
+		n[k] = v
+	}
+	n[group] = date
+	acc.Groups = n
 	k.SetAccount(ctx, acc)
 }
 
@@ -121,6 +128,26 @@ func (k Keeper) GetAccount(ctx sdk.Context, id uint64) types.Account {
 	return account
 }
 
+// GetAccountFromAddr returns an account from its address
+func (k Keeper) GetAccountFromAddr(ctx sdk.Context, addr string) types.Account {
+	var account types.Account
+
+	store := ctx.KVStore(k.storeKey)
+	accountStore := prefix.NewStore(store, types.KeyPrefix(types.AccountAddrKey))
+
+	_, err := types.PrefixPaginate(accountStore, types.KeyPrefix(addr), nil, func(key []byte, value []byte) error {
+		if err := k.cdc.UnmarshalBinaryBare(value, &account); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+
+	}
+	return account
+}
+
 // HasAccount checks if the account exists in the store
 func (k Keeper) HasAccount(ctx sdk.Context, id uint64) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountKey))
@@ -129,7 +156,7 @@ func (k Keeper) HasAccount(ctx sdk.Context, id uint64) bool {
 
 // HasAccountAddr checks if the account exists in the store
 func (k Keeper) HasAccountAddr(ctx sdk.Context, addr string) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountNameKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountAddrKey))
 	return store.Has(types.GetStringBytes(addr))
 }
 

@@ -10,9 +10,26 @@ import (
 	"github.com/uprm-inso-4101-2020-2021-s2/Themis/x/Themis/types"
 )
 
+// GetVoteCmd returns the commands for this module
+func GetVoteCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                        "vote",
+		Short:                      "Manages vote txs",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	cmd.AddCommand(CmdCreateVote())
+	cmd.AddCommand(CmdUpdateVote())
+	cmd.AddCommand(CmdDeleteVote())
+
+	return cmd
+}
+
 func CmdCreateVote() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-vote [poll] [option]",
+		Use:   "create [poll] [option]",
 		Short: "Creates a new vote",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,7 +59,7 @@ func CmdCreateVote() *cobra.Command {
 
 func CmdUpdateVote() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-vote [id] [option]",
+		Use:   "update [id] [option]",
 		Short: "Update a vote",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -72,7 +89,7 @@ func CmdUpdateVote() *cobra.Command {
 
 func CmdDeleteVote() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-vote [id] [poll] [option]",
+		Use:   "delete [id]",
 		Short: "Delete a vote by id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
